@@ -29,6 +29,7 @@ FLAGS:
     -r, --run               Start the node without installation
     -h, --help              Prints help information
     -V, --version           Prints version information
+    -s  --status            Prints status of the running node
 
 OPTIONS:
 
@@ -54,15 +55,17 @@ FLAGS:
     -r, --run               Start the node without installation
     -h, --help              Prints help information
     -V, --version           Prints version information
+    -s  --status            Prints status of the running node
 EOF
 }
 
+# creates a user nym with home directory
 nym_usercreation() {
   
   echo "Creating nym user"
   useradd -U -m -s /sbin/nologin nym
   echo
- if ls -a /home/ | grep nym > /dev/null
+ if ls -a /home/ | grep nym > /dev/null 2>&1
  then
  echo "user nym created with a home directory at /home/nym/"
  else
@@ -70,23 +73,23 @@ nym_usercreation() {
  fi
 }
 
-
+# Check if nym user exists and then download the latest nym-mixnode binaries to nym home directory
 nym_download() {
  if
-   cat /etc/passwd | grep nym > /dev/null
+   cat /etc/passwd | grep nym > /dev/null 2>&1
  then
    echo "Downloading nym-mixnode binaries for the nym user ..."
    cd /home/nym && curl -LO https://github.com/nymtech/nym/releases/download/v0.7.0/nym-mixnode_linux_x86_64
  else
    echo "Download failed..."
-#echo "Could not get into nym user shell ...exiting"
  fi
 }
 
 
-
+# checks for the binaries and then makes them executable 
 nym_chmod() {
- if ls -la /home/nym/ | grep nym-mixnode_linux_x86_64 >/dev/null
+  test -x nym-mixnode_autoinstall.sh ; echo $?
+ if ls -la /home/nym/ | grep nym-mixnode_linux_x86_64 > /dev/null 2>&1
  then
    echo "Making the nym binary executable ..."
    chmod 755 /home/nym/nym-mixnode_linux_x86_64
@@ -95,16 +98,22 @@ nym_chmod() {
  fi
 }
 
+# change ownerships of all files within nym home directory / they were downloaded as root so now we return them back to nym
 nym_chown() {
  chown -R nym:nym /home/nym/
  echo "Changed ownership to nym:nym"
 }
+
+# Get server ipv4 
 ip_addr=`curl -sS v4.icanhazip.com`
+
+# checks if the path is correct and then prompts user for input to get $id and optional $location. 
+# Then runs the binary with the given input from user and builds config.
 nym_init() {
- #set -x
+ #get server's ipv4 address 
  ip_addr=`curl -sS v4.icanhazip.com`
  if
-   pwd | grep /home/nym > /dev/null
+   pwd | grep /home/nym > /dev/null 2>&1
  then
    echo "What name do you want for your node id?"
    read id
@@ -113,23 +122,50 @@ nym_init() {
    echo
    echo "Where is your server located? Leave blank if you would rather not tell ..."
    read location
+   # borrows a shell for nym user to initialize the node config. 
    sudo -u nym ./nym-mixnode_linux_x86_64 init --id $id --layer 2 --location $location --host $ip_addr
    printf "Your node has id $id located in $location with ip $ip_addr \n ...\n Config built!\n"
  else
-   echo "WTF"
+   echo "Something went wrong ..."
  #set +x
  fi
 }
 
 nym_run() {
  if
-   ls -la /home/nym/.nym/mixnodes/ | grep $id > /dev/null
+   ls -la /home/nym/.nym/mixnodes/ | grep $id > /dev/null 2>&1
  then
    printf "Trying to run the node with nohup to make it persistent ...\n"
    sudo -u nym nohup ./nym-mixnode_linux_x86_64 run --id $id &
  else
    "Something went wrong ..."
  fi
+}
+
+nym_run2() {
+ echo "Enter the node id"
+ read id
+ echo
+
+  if 
+    ls -la /home/nym/.nym/mixnodes/$id
+  then 
+    sudo -u nym nohup ./nym-mixnode_linux_x86_64 run --id $id 2>&1 </dev/null &
+    exit 
+  else
+    echo "This node id does not exist. Please run the script with -c flag to initialize the node"
+  fi
+}
+
+# Print the status of the nohup.out file
+nym_status() {
+  if [ -e /home/nym/nohup.out ] > /dev/null 2>&1
+  then 
+   tail -n 24 /home/nym/nohup.out
+  else
+   echo "nym-mixnode is not running..."
+  fi
+
 }
 
 # full install and setup  
@@ -142,7 +178,7 @@ nym_run() {
     nym_run
 
   fi
-# run the node 
+# configure the node 
   if [ "$1" = "-c" ]; then
     cd /home/nym/
     nym_init
@@ -150,7 +186,12 @@ nym_run() {
 # run the node 
   if [ "$1" = "-r" ]; then
     cd /home/nym/
-    nym_run
+    nym_run2
+  fi
+# get status from the nohup.out file 
+  if [ "$1" = "-s" ]; then
+    cd /home/nym/
+    nym_status
   fi
 # if no arguments supplied, display usage 
   if [ -z "$1" ]
