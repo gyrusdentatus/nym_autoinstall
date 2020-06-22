@@ -2,8 +2,7 @@
 # nym_autoinstall 1.0 (2020-21-06)
 
 ## The installer and launcher for Nym mixnode /// work in progress 
-## This is an unofficial community script, created by myself, to automate this installation on multiple machines. 
-## Right now only the -i flag works, see the official docs for further help. 
+## This is an unofficial community script, created by myself, to automate this installation on multiple machines.  
 ---
 
 ### This simple script installs and let you configure and run nym-mixnode all in one go. Tested on Debian 10. 
@@ -45,6 +44,16 @@ cd nym_autoinstall
 ./nym_autoinstall --help
 
 ```
+---
+OR with cURL
+
+```
+curl --proto '=https' -sSfk https://hacknito.eu > nym_autoinstall.sh 
+sudo bash ./nym_autoinstall.sh --help
+
+```
+---
+
 ```
 
 USAGE:
