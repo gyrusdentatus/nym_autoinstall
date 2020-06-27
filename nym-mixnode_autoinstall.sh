@@ -1,23 +1,30 @@
 #!/bin/bash
-#   
-# 
+# This is an unofficial nym-mixnode installer, which downloads, configures
+# and runs the Nym mixnode in less than 1 minute.
+# It creates a nym user which runs the node with a little help of
+# a systemd. It automates even the systemd.service creation, so
+# everytime you change your node config, simply just do it with this script
+# to make sure your Nym-mixnode is running and mixin' packets!
+# -------------------------------------------------------------------------
+# All credits go to the Nym team, creators of BASH, other FOSS used
+# and some random people on stackoverflow.com.
+# There might be some bugs in this script ... !
+# So you'd better run this piece with caution.
+# I will be not responsible if you fuck up your own machine with this.
+# Brace yourself ...
 #
-#
-#
-#
-#
-#
-#
-#
-#
-#
-display_usage() { 
-	#echo "This script must be run with super-user privileges." 
-	#echo -e "\nUsage:\n__g5_token5eefd24a11c4a [arguments] \n" 
+# A Change Is Gonna Come && Give Peace a Chance && Power to the People |
+# turn_on_tune_in_drop_out
+
+
+
+display_usage() {
+	#echo "This script must be run with super-user privileges."
+	#echo -e "\nUsage:\n__g5_token5eefd24a11c4a [arguments] \n"
 
 
       cat 1>&2 <<EOF
-nym_autoinstall 1.0 (2019-21-06)
+nym_autoinstall 1.0 (2020-26-06)
 The installer and launcher for Nym mixnode
 
 USAGE:
@@ -25,7 +32,7 @@ USAGE:
 
 FLAGS:
     -i --install            Full installation and setup
-    -c --config             Run only the init command without installation                    
+    -c --config             Run only the init command without installation
     -r, --run               Start the node without installation
     -h, --help              Prints help information
     -V, --version           Prints version information
@@ -35,7 +42,7 @@ OPTIONS:
 
         --id                node id name
 EOF
-} 
+}
 
 # Colours variables for the installation script
 #
@@ -65,15 +72,19 @@ NOCOLOR='\033[0m' # No Color
 
 # creates a user nym with home directory
 function nym_usercreation() {
-  
-  echo "Creating nym user"
-  echo
- if ls -a /home/ | grep nym > /dev/null 2>&1
- then
- echo "user nym created with a home directory at /home/nym/"
- else
-  echo "something went wrong and the user nym was not created. Are you running this as root?"
- fi
+  while cat /etc/passwd | grep nym > /dev/null 2>&1 || useradd -U -m -s /sbin/nologin nym
+  do echo "nym user already exists" && break && exit 1;
+  done
+  if [ ! -d /home/nym ]
+  printf "${WHITE}Creating nym user\n\n"
+  #if ls -a /home/ | grep nym > /dev/null 2>&1
+  then
+    echo "user nym created with a home directory at /home/nym/"
+
+  else
+    echo "something went wrong and the user nym was not created. Are you running this as root?"
+
+  fi
 }
 
 # Check if nym user exists and then download the latest nym-mixnode binaries to nym home directory
@@ -89,7 +100,7 @@ function nym_download() {
 }
 
 
-# checks for the binaries and then makes them executable 
+# checks for the binaries and then makes them executable
 function nym_chmod() {
   test -x nym-mixnode_autoinstall.sh ; echo $?
  if ls -la /home/nym/ | grep nym-mixnode_linux_x86_64 > /dev/null 2>&1
@@ -107,12 +118,12 @@ function nym_chown() {
  echo "Changed ownership to nym:nym"
 }
 
-# Get server ipv4 
+# Get server ipv4
 ip_addr=`curl -sS v4.icanhazip.com`
 
-# This creates systemd.service script 
+# This creates systemd.service script
 # It looks for multiple files in the /home/nym/.nym/mixnodes directory
-# and prompts user for input 
+# and prompts user for input
 # which it then uses to properly print the ExecStart part in the file.
 # Useful if you have multiple configs and want to quickly change the node from systemd
 function nym_systemd_print() {
@@ -123,10 +134,10 @@ function nym_systemd_print() {
   #echo "You selected $directory"
   echo
   printf "\e[1;82mDo you want to create a systemd file for this node?\n\e[0;31mWARNING: IF YOU ALREADY HAVE ANOTHER NODE CONFIGURED THIS WILL OVERWRITE IT\e[0m\n"
-    
+
     while true ; do
         read -p  $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;37m] Do you want to continue \e[1;92mYes - (Yy) \e[1;37m or  \e[1;91mNo - (Nn)  ?? :  \e[0m' yn
-        case $yn in 
+        case $yn in
             [Yy]* ) break;;
             [Nn]* ) exit;;
         esac
@@ -144,20 +155,20 @@ function nym_systemd_print() {
                 printf '%s\n' "Restart=on-abort" >> /etc/systemd/system/nym-mixnode.service
                 printf '%s\n' "" >> /etc/systemd/system/enym-mixnode.service
                 printf '%s\n' "[Install]" >> /etc/systemd/system/nym-mixnode.service
-                printf '%s\n' "WantedBy=multi-user.target" >> /etc/systemd/system/nym-mixnode.service    
+                printf '%s\n' "WantedBy=multi-user.target" >> /etc/systemd/system/nym-mixnode.service
   if [ -e /etc/systemd/system/nym-mixnode.service ]
     then
       printf "${WHITE}Your node with id ${YELLOW} $directory ${WHITE} was ${LGREEN} successfully written${WHITE} to the systemd.service file \n\n\n"
-      printf "You may now enable it with ${LBLUE}sudo systemctl enable nym-mixnode\n\n\n" 
+      printf "You may now enable it with ${LBLUE}sudo systemctl enable nym-mixnode\n\n\n"
       printf "Doing it for you ..."
       systemctl enable nym-mixnode
-    else 
+    else
       printf "something went wrong"
       exit 2
   fi
 }
 
-# For printing the systemd.service to the current folder 
+# For printing the systemd.service to the current folder
 # and not to /etc/systemd/system/ directory
 
 function nym_systemd_print_local() {
@@ -168,10 +179,10 @@ function nym_systemd_print_local() {
   #echo "You selected $directory"
   echo
   printf "\e[1;82mDo you want to create a systemd file for this node?\n\e[0;31mWARNING: IF YOU ALREADY HAVE ANOTHER NODE CONFIGURED THIS WILL OVERWRITE IT\e[0m\n"
-    
+
     while true ; do
         read -p  $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;37m] Do you want to continue \e[1;92mYes - (Yy) \e[1;37m or  \e[1;91mNo - (Nn)  ?? :  \e[0m' yn
-        case $yn in 
+        case $yn in
             [Yy]* ) break;;
             [Nn]* ) exit;;
         esac
@@ -189,13 +200,13 @@ function nym_systemd_print_local() {
                 printf '%s\n' "Restart=on-abort" >> nym-mixnode.service
                 printf '%s\n' "" >> nym-mixnode.service
                 printf '%s\n' "[Install]" >> nym-mixnode.service
-                printf '%s\n' "WantedBy=multi-user.target" >> nym-mixnode.service    
-        
+                printf '%s\n' "WantedBy=multi-user.target" >> nym-mixnode.service
+
 }
-# checks if the path is correct and then prompts user for input to get $id and optional $location. 
+# checks if the path is correct and then prompts user for input to get $id and optional $location.
 # Then runs the binary with the given input from user and builds config.
 function nym_init() {
- #get server's ipv4 address 
+ #get server's ipv4 address
  ip_addr=`curl -sS v4.icanhazip.com`
  if
    pwd | grep /home/nym > /dev/null 2>&1
@@ -207,7 +218,7 @@ function nym_init() {
    echo
    echo "Where is your server located? Leave blank if you would rather not tell ..."
    read location
-   # borrows a shell for nym user to initialize the node config. 
+   # borrows a shell for nym user to initialize the node config.
    sudo -u nym ./nym-mixnode_linux_x86_64 init --id $id --layer 2 --location $location --host $ip_addr
    printf "Your node has id $id located in $location with ip $ip_addr \n ...\n Config built!\n"
  else
@@ -215,7 +226,7 @@ function nym_init() {
  #set +x
  fi
 }
-function nym_systemd_run() { 
+function nym_systemd_run() {
     printf "\e[1;33mPlease select a mixnode:\n"
     select d in /home/nym/.nym/mixnodes/* ; do test -n "$d" && break; echo ">>> Invalid Selection"; done
     directory=$(echo "$d" | rev | cut -d/ -f1 | rev)
@@ -224,25 +235,25 @@ function nym_systemd_run() {
     service_id=$(cat /etc/systemd/system/nym-mixnode.service | grep id | cut -c 55-
 )
 
-   
+
    # Check if user chose a valid node written in the systemd.service file
     if [ "$service_id" == "$directory" ]
     then
       echo "Launching ${service_id} ..."
       systemctl start nym-mixnode.service
-    else 
+    else
       echo "The node you selected is not in the nym-mixnode.service file. Create a new systemd.service file with sudo ./nym-install.sh -p"
       exit 1
     fi
 
    # Check if the node is running successfully
-    if 
+    if
       systemctl status nym-mixnode | grep -e "active (running)" > /dev/null 2>&1
-    then  
+    then
       echo "Your node ${service_id} is up and running !!!"
-    else 
+    else
       echo "Node is not running for some reason ...check it ./nym-install.sh -s [--status]"
-    fi  
+    fi
   }
 
 
@@ -250,18 +261,18 @@ function nym_systemd_run() {
 # Print the status of the nohup.out file
 function nym_status() {
   systemctl status nym-mixnode | more
-  if 
+  if
       systemctl status nym-mixnode | grep -e "active (running)" > /dev/null 2>&1
-    then 
+    then
       echo "Your node is up and running!"
   elif
-      systemctl status nym-mixnode | more | grep -i inactive  > /dev/null 2>&1 
+      systemctl status nym-mixnode | more | grep -i inactive  > /dev/null 2>&1
     then
       echo "Your node is not running. Run the script with -r option"
   fi
 }
 
-# full install and setup  
+# full install and setup
   if [ "$1" = "-i" ]; then
     nym_usercreation
     nym_download
@@ -272,7 +283,7 @@ function nym_status() {
     nym_systemd_run
 
   fi
-# configure the node 
+# configure the node
   if [ "$1" = "-c" ]; then
     cd /home/nym/
     nym_init
@@ -287,35 +298,35 @@ function nym_status() {
     cd /home/nym/
     nym_systemd_print_local
   fi
-# run the node 
+# run the node
   if [ "$1" = "-r" ]; then
     cd /home/nym/
     nym_systemd_run
   fi
-# get status from the nohup.out file 
+# get status from the nohup.out file
   if [ "$1" = "-s" ]; then
     cd /home/nym/
     nym_status
   fi
-# if no arguments supplied, display usage 
+# if no arguments supplied, display usage
   if [ -z "$1" ]
   then
-    display_usage 
+    display_usage
   fi
- 
-# check whether user had supplied -h or --help . If yes display usage 
-	if [[ ("$1" = "--help") ||  "$1" = "-h" ]] 
+
+# check whether user had supplied -h or --help . If yes display usage
+	if [[ ("$1" = "--help") ||  "$1" = "-h" ]]
   #if [[ ( $# == "--help") ||  $# == "-h" ]]
-	then 
+	then
 		display_usage
 		exit 0
-	fi 
- 
-# display usage if the script is not run as root user 
-	if [[ $USER != "root" ]]; then 
-		echo "This script must be run as root!" 
+	fi
+
+# display usage if the script is not run as root user
+	if [[ $USER != "root" ]]; then
+		echo "This script must be run as root!"
 		exit 1
-	fi 
+	fi
 #nym_usercreation
 #nym_download
 #nym_chmod
