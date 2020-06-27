@@ -1,16 +1,27 @@
 
-# nym_autoinstall 1.0 (2020-21-06)
+# nym_autoinstall 1.1 (2020-26-06)
 
 ## The installer and launcher for Nym mixnode /// work in progress 
 ## This is an unofficial community script, created by myself, to automate this installation on multiple machines.  
 ---
+### This is an unofficial nym-mixnode installer, which downloads, configures
+### and runs the Nym mixnode in less than 1 minute.
+### It creates a nym user which runs the node with a little help of
+### a systemd. It automates even the systemd.service creation, so
+### everytime you change your node config, simply just do it with this script
+### to make sure your Nym-mixnode is running and mixin' packets!
+### -------------------------------------------------------------------------
+### All credits go to the Nym team, creators of BASH, other FOSS used
+### and some random people on stackoverflow.com.
+### There might be some bugs in this script ... !
+### So you'd better run this piece with caution.
+### I will be not responsible if you fuck up your own machine with this.
+### Brace yourself ...
+#
+### A Change Is Gonna Come && Give Peace a Chance && Power to the People |
+### turn_on_tune_in_drop_out
 
-### This simple script installs and let you configure and run nym-mixnode all in one go. Tested on Debian 10. 
-### This is an unofficial community script, created by myself
-### Make sure you have all basic packages before running this and ufw rules set to allow in/out traffic on port 1789 
-### Since the script creates a new user nym you need to run this as root/with sudo
----
-### Requirements: run all commands as root/w sudo obviously
+## Requirements: run all commands as root/w sudo obviously
 
 ```
 apt install curl ufw sudo git pkg-config build-essential libssl-dev 
