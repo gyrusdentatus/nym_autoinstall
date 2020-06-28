@@ -27,7 +27,7 @@ nym_install.sh 0.7.0 (2020-28-06)
 The installer and launcher for Nym mixnode
 
 USAGE:
-    ./nym_autoinstall.sh [FLAGS] 
+    ./nym_install.sh [FLAGS] 
 
 FLAGS:
     -i  --install            Full installation and setup
