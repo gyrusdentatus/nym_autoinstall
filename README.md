@@ -1,84 +1,93 @@
+# The nym-mixnode installer 0.7.0
 
-# nym_autoinstall 1.1 (2020-26-06)
+##### * An ***unofficial*** **nym-mixnode** installer.
 
-## The installer and launcher for Nym mixnode /// work in progress 
-## This is an unofficial community script, created by myself, to automate this installation on multiple machines.  
----
-### This is an unofficial nym-mixnode installer, which downloads, configures
-### and runs the Nym mixnode in less than 1 minute.
-### It creates a nym user which runs the node with a little help of
-### a systemd. It automates even the systemd.service creation, so
-### everytime you change your node config, simply just do it with this script
-### to make sure your Nym-mixnode is running and mixin' packets!
-### -------------------------------------------------------------------------
-### All credits go to the Nym team, creators of BASH, other FOSS used
-### and some random people on stackoverflow.com.
-### There might be some bugs in this script ... !
-### So you'd better run this piece with caution.
-### I will be not responsible if you fuck up your own machine with this.
-### Brace yourself ...
-#
-### A Change Is Gonna Come && Give Peace a Chance && Power to the People |
-### turn_on_tune_in_drop_out
+This script installs all dependencies, downloads Nym-mixnode binaries, promts user for the input for the mixnode configuration
+, creates a systemd.service file based on the user input, enables ufw and nym-mixnode.service and then launches the node.
+Nym-mixnode is being launched by systemctl with a newly created user *nym* from */home/nym/* directory. 
 
-## Requirements: run all commands as root/w sudo obviously
+Official Nym repos can be found here: https://github.com/nymtech/
+## Compatible systems & recommendations
 
-```
-apt install curl ufw sudo git pkg-config build-essential libssl-dev 
+* It has been **tested** on **Debian 10**. Ubuntu should be compatible as well. 
 
-```
+* I would highly **recommend** to **run** this script on a **fresh Debian 10** machine on **VPS**. 
 
-### set up the ufw
 
-```
-ufw allow 22/tcp && ufw allow 1789/tcp 
+* It currently **won't** run on on **non-Debian based distros** unless you edit the script for your distro package manager. 
 
-```
-```
-ufw enable
+* Additional configuration would be needed on cloud providers such as Google Cloud and if you run this from your home network behind NAT. 
+This function will be added later in the upcoming future. 
 
-```
+* this script needs to be run as **sudo** or **root**, but then **nym-mixnode** will be run with a user *nym*
 
-### Download the script
 
-```
-git clone https://github.com/gyrusdentatus/nym_autoinstall
 
-```
+## one-liner full installation
+Copy the whole command into your terminal. Assuming you have the ssh keys set up and you are ready to connect to the server
 
-```
-cd nym_autoinstall
+If you are not sure how to do that and you are using MacOS 10.13+ check Section 2 in my [guide](https://gist.github.com/gyrusdentatus/e81658af3086c8d833720af53d5b2c3d).
 
-```
+--------------------
 
-```
-./nym_autoinstall --help
+on fresh Debian 10 as root:
 
+``` 
+ssh root@x.x.x.x -t 'apt update -y && apt install git -y && git clone https://github.com/gyrusdentatus/nym_autoinstall && cd nym_autoinstall && bash nym_install.sh -i'
 ```
 ---
-OR with cURL
+As a sudo user: 
+```
+ssh username@x.x.x.x -t 'sudo apt update -y && sudo apt install git -y && git clone https://github.com/gyrusdentatus/nym_autoinstall && cd nym_autoinstall && sudo bash nym_install.sh -i'
+```
+----
+
+Then just **follow the instructions** and your mixnode will run within 2 minutes, or even 30 seconds if your server is fast !
+
+## Installation with git
+
+``` 
+git clone https://github.com/gyrusdentatus/nym_autoinstall 
+```
+
+``` 
+cd nym_autoinstall 
+```
+
+``` 
+sudo bash ./nym_install.sh --help 
+```
+
+or if you want to proceed to the full install, config and launch then
+
+``` 
+sudo bash ./nym_install.sh -i 
+```
+## Usage
 
 ```
-curl --proto '=https' -sSfk https://hacknito.eu > nym_autoinstall.sh 
-sudo bash ./nym_autoinstall.sh --help
-
-```
----
-
-```
-
 USAGE:
-    ./nym_autoinstall.sh [FLAGS] [OPTIONS]
-
+    ./nym_install.sh [FLAGS] 
 FLAGS:
-    -i --install            Full installation and setup
-    -c --config             Run only the init command without installation                    
+    -i  --install           Full installation and setup
+    -c  --config            Run only the init command without installation
     -r, --run               Start the node without installation
     -h, --help              Prints help information
     -V, --version           Prints version information
-
+    -s  --status            Prints status of the running node
+    -f  --firewall          Firewall setup
+    -p  --print             Create nym-mixnode.service for systemd
+    -l  --print-local       Create nym-mixnode.service for systemd LOCALLY in the current directory
 ```
 
-feel free to have a chat here on Telegram https://t.me/nymchan_help_chat @gyrusdentatus. 
-Also make sure you read the official docs https://nymtech.net/docs/ and join the telegram chat and keybase for more info! 
-#### HAPPY MIXXIN
+## Full build
+
+If you would like to build the whole Nym platform from source, see my guide [here](https://gist.github.com/gyrusdentatus/e81658af3086c8d833720af53d5b2c3d).
+
+Depending on your skills with Linux, you can skip to **Section 3**
+
+Platform build instructions are available on [official Nym docs](https://nymtech.net/docs).
+
+## Nym-mixnode setup chat
+
+If you need any help, join our chat on Telegram - [Nym mixnode setup chat](https://t.me/nymchan_help_chat). 
