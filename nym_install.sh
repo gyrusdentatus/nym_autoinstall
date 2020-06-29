@@ -401,7 +401,7 @@ function nym_status() {
     nym_chmod
     nym_chown
     nym_init
-    nym_systemd_print || nym_ufw ; nym_systemd_print
+    nym_systemd_print
     nym_ufw 
     nym_systemd_run
     printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
