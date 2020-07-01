@@ -315,6 +315,7 @@ function nym_init() {
    printf "%b\n\n\n" "${WHITE} Where is your server located? Leave blank if you would rather not tell ...${LBLUE}"
    printf "%b\n\n\n" 
    read location
+   if [[ -z "${location// }" ]] ; then location="unknown" ; fi
    printf "%b\n\n\n" 
    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
    # borrows a shell for nym user to initialize the node config.
