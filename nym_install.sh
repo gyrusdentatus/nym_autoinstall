@@ -464,19 +464,17 @@ function nym_status() {
   fi
 
 ## Check whether user had supplied -h or --help . If yes display usage
-	if [[ ("$1" = "--help") ||  "$1" = "-h" ]]
-  #if [[ ( $# == "--help") ||  $# == "-h" ]]
-	then
-		display_usage
-		exit 0
-	fi
+  if [[ ("$1" = "--help") ||  "$1" = "-h" ]]
+  then
+    display_usage
+	exit 0
+  fi
 ## Prints the version of Nym used
   if [[ ("$1" = "--version") ||  "$1" = "-V" ]]
-  #if [[ ( $# == "--help") ||  $# == "-h" ]]
-	then
-		display_usage
-		exit 0
-	fi
+  then
+     display_usage
+	exit 0
+  fi
 
 #nym_usercreation
 #nym_download
