@@ -84,7 +84,7 @@ fi
 
 
 ## Prints the Nym banner to stdout from hex
-printf "%b\n" "0A0A2020202020205F205F5F20205F2020205F205F205F5F205F5F5F0A20202020207C20275F205C7C207C207C207C20275F205C205F205C0A20202020207C207C207C207C207C5F7C207C207C207C207C207C207C0A20202020207C5F7C207C5F7C5C5F5F2C207C5F7C207C5F7C207C5F7C0A2020202020202020202020207C5F5F5F2F0A0A2020202020202020202020202028696E7374616C6C6572202D2076657273696F6E20302E372E30290A" | xxd -p -r
+printf "%b\n" "0a0a0a0a2020202020205f205f5f20205f2020205f205f205f5f205f5f5f0a20202020207c20275f205c7c207c207c207c20275f205c205f205c0a20202020207c207c207c207c207c5f7c207c207c207c207c207c207c0a20202020207c5f7c207c5f7c5c5f5f2c207c5f7c207c5f7c207c5f7c0a2020202020202020202020207c5f5f5f2f0a0a2020202020202020202020202028696e7374616c6c6572202d2076657273696f6e20302e382e30290a" | xxd -p -r
 
 ## Checks if essential packages are installed
 ## if not then it installs them
@@ -319,10 +319,10 @@ function nym_init() {
    printf "%b\n\n\n"
    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
    # borrows a shell for nym user to initialize the node config.
-   sudo -u nym ./nym-mixnode_linux_x86_64 init --id $id --layer 2 --location $location --host $ip_addr
+   sudo -u nym -H ./nym-mixnode_linux_x86_64 init --id $id --layer 2 --location $location --host $ip_addr
    printf "%b\n\n\n"
    printf "%b\n\n\n" "${WHITE}  Your node has id ${YELLOW} $id ${WHITE} located in ${LBLUE} $location ${WHITE} with ip ${YELLOW} $ip_addr ${WHITE}... "
-   printf "%b\n\n\n" "${WHITE} Config was ${LGREEN} built successfully!"
+   printf "%b\n\n\n" "${WHITE} Config was ${LGREEN} built successfully ${WHITE}!"
  else
    printf "%b\n\n\n" "${WHITE} Something went ${RED} wrong {WHITE}..."
    exit 2
