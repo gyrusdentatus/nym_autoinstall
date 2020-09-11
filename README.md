@@ -1,4 +1,4 @@
-# The nym-mixnode installer 0.7.0
+# The nym-mixnode installer 0.8.0
 
 ##### * An ***unofficial*** **nym-mixnode** installer.
 
@@ -9,17 +9,21 @@ Nym-mixnode is being launched by systemctl with a newly created user *nym* from 
 Official Nym repos can be found here: https://github.com/nymtech/
 ## Compatible systems & recommendations
 
-* It has been **tested** on **Debian 10**. Ubuntu should be compatible as well. 
+* It has been **tested** on **Debian 10**. 
+* There are **permission issues** on **Ubuntu 18.04** with user Nym, **not being able to create spinhx keys** for some weird N0-0buntu reason.  
 
 * I would highly **recommend** to **run** this script on a **fresh Debian 10** machine on **VPS**. 
 
 
 * It currently **won't** run on on **non-Debian based distros** unless you edit the script for your distro package manager. 
 
-* Additional configuration would be needed on cloud providers such as Google Cloud and if you run this from your home network behind NAT. 
-This function will be added later in the upcoming future. 
+* This installer **will not** work with cloud providers such as Google Cloud and if you run this from your home network behind NAT. 
+This function will be added later in the upcoming future. Reason is you need to add **--host LOCAL_IP --announce-host PUBLIC_IP** during the **init phase**
+In this case you can still use it to create a systemd.service file for a better control of your node and checking its status.
 
 * this script needs to be run as **sudo** or **root**, but then **nym-mixnode** will be run with a user *nym*
+
+
 
 
 
@@ -81,6 +85,8 @@ FLAGS:
 ```
 
 ## Full build
+
+### *The guide is outdated but I guess the only thing you need to change is the git checkout tags part to the current version*
 
 If you would like to build the whole Nym platform from source, see my guide [here](https://gist.github.com/gyrusdentatus/e81658af3086c8d833720af53d5b2c3d).
 
