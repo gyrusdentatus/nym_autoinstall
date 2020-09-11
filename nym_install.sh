@@ -374,7 +374,7 @@ function nym_status() {
       systemctl status nym-mixnode | grep -e "active (running)" > /dev/null 2>&1
     then
       printf "%b\n\n\n"
-      printf "%b\n\n\n" "${WHITE} Your ${YELLOW} node ${WHITE} is ${LGREEN} up ${WHITE} and ${LGREEN} running!"
+      printf "%b\n\n\n" "${WHITE} Your ${YELLOW} node ${WHITE} is ${LGREEN} up ${WHITE} and ${LGREEN} running ${WHITE!"
       printf "%b\n\n\n"
   elif
       systemctl status nym-mixnode | more | grep -i inactive  > /dev/null 2>&1
