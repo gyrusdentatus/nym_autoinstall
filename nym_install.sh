@@ -12,7 +12,7 @@
 ## There might be some bugs in this script ... !
 ## So you'd better run this piece with caution.
 ## I will be not responsible if you fuck up your own machine with this.
-## 
+##
 ## turn_on_tune_in_drop_out
 ############################################################################
 
@@ -27,7 +27,7 @@ nym_install.sh 0.7.0 (2020-28-06)
 The installer and launcher for Nym mixnode
 
 USAGE:
-    ./nym_install.sh [FLAGS] 
+    ./nym_install.sh [FLAGS]
 
 FLAGS:
     -i  --install            Full installation and setup
@@ -48,14 +48,14 @@ EOF
 RED='\033[1;91m' # WARNINGS
 YELLOW='\033[1;93m' # HIGHLIGHTS
 WHITE='\033[1;97m' # LARGER FONT
-LBLUE='\033[1;96m' # HIGHLIGHTS / NUMBERS ... 
-LGREEN='\033[1;92m' # SUCCESS 
-NOCOLOR='\033[0m' # DEFAULT FONT 
+LBLUE='\033[1;96m' # HIGHLIGHTS / NUMBERS ...
+LGREEN='\033[1;92m' # SUCCESS
+NOCOLOR='\033[0m' # DEFAULT FONT
 
 ## required packages list
 install_essentials='curl ufw sudo git pkg-config build-essential libssl-dev'
 ## Checks if all required packages are installed
-## If not then it installs them with apt-get 
+## If not then it installs them with apt-get
 if
    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
    printf "%b\n\n\n" "${WHITE} Checking requirements ..."
@@ -83,14 +83,14 @@ fi
 #done
 
 
-## Prints the Nym banner to stdout from hex 
-printf "%b\n" "0A0A2020202020205F205F5F20205F2020205F205F205F5F205F5F5F0A20202020207C20275F205C7C207C207C207C20275F205C205F205C0A20202020207C207C207C207C207C5F7C207C207C207C207C207C207C0A20202020207C5F7C207C5F7C5C5F5F2C207C5F7C207C5F7C207C5F7C0A2020202020202020202020207C5F5F5F2F0A0A2020202020202020202020202028696E7374616C6C6572202D2076657273696F6E20302E372E30290A" | xxd -p -r 
+## Prints the Nym banner to stdout from hex
+printf "%b\n" "0A0A2020202020205F205F5F20205F2020205F205F205F5F205F5F5F0A20202020207C20275F205C7C207C207C207C20275F205C205F205C0A20202020207C207C207C207C207C5F7C207C207C207C207C207C207C0A20202020207C5F7C207C5F7C5C5F5F2C207C5F7C207C5F7C207C5F7C0A2020202020202020202020207C5F5F5F2F0A0A2020202020202020202020202028696E7374616C6C6572202D2076657273696F6E20302E372E30290A" | xxd -p -r
 
 ## Checks if essential packages are installed
-## if not then it installs them 
+## if not then it installs them
 #dpkg-query -l 'curl' 'ufw' 'sudo' 'git' 'pkg-config' 'build-essential' 'libssl-dev' 'asdasd' > /dev/null 2>&1 || apt
 # creates a user nym with home directory
-function nym_usercreation() { 
+function nym_usercreation() {
   useradd -U -m -s /sbin/nologin nym
   printf "%b\n\n\n"
   printf "%b\n\n\n" "${YELLOW} Creating ${WHITE} nym user\n\n"
@@ -111,7 +111,7 @@ function nym_download() {
  then
     printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
     printf "%b\n\n\n" "${YELLOW} Downloading ${WHITE} nym-mixnode binaries for the nym user ..."
-    cd /home/nym && curl -LO https://github.com/nymtech/nym/releases/download/v0.7.0/nym-mixnode_linux_x86_64
+    cd /home/nym && curl -LO https://github.com/nymtech/nym/releases/download/v0.8.0/nym-mixnode_linux_x86_64
     printf "%b\n\n\n"
     printf "%b\n\n\n" "${WHITE} nym-mixnode binaries ${LGREEN} successfully downloaded ${WHITE}!"
  else
@@ -144,24 +144,24 @@ function nym_chown() {
 }
 
 ## Get server ipv4
-ip_addr=`curl -sS v4.icanhazip.com` 
+ip_addr=`curl -sS v4.icanhazip.com`
 
 
 
 ## Check if ufw is enabled or not and allows 1789/tcp and 22/tcp
-function nym_ufw { 
+function nym_ufw {
 printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
 printf "%b\n\n\n" "${WHITE} Setting up the ${YELLOW} firewall ${WHITE}: "
 ufw status | grep -i in && inactive="1" || is_active="1" > /dev/null 2>&1
 
 
-if [ "${inactive}" == 1 ] 
+if [ "${inactive}" == 1 ]
 then
     printf '\n\n\n'
-    printf "%b\n\n\n" "${YELLOW} ufw ${WHITE} (Firewall) is ${RED} inactive" 
+    printf "%b\n\n\n" "${YELLOW} ufw ${WHITE} (Firewall) is ${RED} inactive"
     sleep 1
     printf '\n\n\n'
-    printf "%b\n\n\n" "${LGREEN} Enable it ${WHITE} and ${LGREEN} allow rules ${WHITE}for  Nym-mixnode?\n" 
+    printf "%b\n\n\n" "${LGREEN} Enable it ${WHITE} and ${LGREEN} allow rules ${WHITE}for  Nym-mixnode?\n"
     while true ; do
         read -p  $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;37m] Do you want to continue \e[1;92mYes - (Yy) \e[1;37m or  \e[1;91mNo - (Nn)  ?? :  \e[0m' yn
         printf '\n\n\n'
@@ -173,11 +173,11 @@ then
     ufw allow 1789/tcp > /dev/null 2>&1 && printf "%b\n\n\n" "${YELLOW} port ${LBLUE} 1789 ${WHITE} was ${LGREEN}allowed ${WHITE} in ufw settings"
 ## Allow ssh just in case
 ## To avoid locking the user from the server
-    ufw allow 22/tcp && ufw limit 22/tcp 
-    ufw enable 
-    ufw status 
-else [ "$is_active" == 1 ] 
- 
+    ufw allow 22/tcp && ufw limit 22/tcp
+    ufw enable
+    ufw status
+else [ "$is_active" == 1 ]
+
     printf '\n\n\n'
     printf "%b\n\n\n" "${YELLOW} ufw ${WHITE} (Firewall) is ${LGREEN} active"
     sleep 1
@@ -193,7 +193,7 @@ else [ "$is_active" == 1 ]
         esac
     done
     ufw allow 1789/tcp > /dev/null 2>&1 && printf "%b\n\n\n" "${YELLOW} port ${LBLUE} 1789 ${WHITE} was ${LGREEN}allowed ${WHITE} in ufw settings"
-    ufw status 
+    ufw status
 
 
 fi
@@ -286,15 +286,15 @@ function nym_systemd_print_local() {
                 printf '%s\n' "[Install]" >> nym-mixnode.service
                 printf '%s\n' "WantedBy=multi-user.target" >> nym-mixnode.service
     current_path=$(pwd)
-    if 
-      [ -e ${current_path}/nym-mixnode.service ] 
-    then 
+    if
+      [ -e ${current_path}/nym-mixnode.service ]
+    then
       printf "%b\n\n\n" "${WHITE} Your systemd script with id $directory was ${LGREEN} successfully written ${WHITE} to the current directory"
       printf "%b\n" "${YELLOW} $(pwd)"
     else
       printf "%b\n\n\n" "${WHITE} Printing of the systemd script to the current folder ${RED} failed. ${WHITE} Do you have ${YELLOW} permissions ${WHITE} to ${YELLOW} write ${WHITE} in ${pwd} ${YELLOW}  directory ??? "
     fi
-}   
+}
 
 ## Checks if the path is correct and then prompts user for input to get $id and optional $location.
 ## Then runs the binary with the given input from user and builds config.
@@ -313,14 +313,14 @@ function nym_init() {
    printf "%b\n\n\n" "${WHITE} Your node name will be ${YELLOW} $id. ${WHITE} Use it nextime if you restart your server or the node is not running"
    printf "%b\n\n\n"
    printf "%b\n\n\n" "${WHITE} Where is your server located? Leave blank if you would rather not tell ...${LBLUE}"
-   printf "%b\n\n\n" 
+   printf "%b\n\n\n"
    read location
    if [[ -z "${location// }" ]] ; then location="unknown" ; fi
-   printf "%b\n\n\n" 
+   printf "%b\n\n\n"
    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
    # borrows a shell for nym user to initialize the node config.
    sudo -u nym ./nym-mixnode_linux_x86_64 init --id $id --layer 2 --location $location --host $ip_addr
-   printf "%b\n\n\n" 
+   printf "%b\n\n\n"
    printf "%b\n\n\n" "${WHITE}  Your node has id ${YELLOW} $id ${WHITE} located in ${LBLUE} $location ${WHITE} with ip ${YELLOW} $ip_addr ${WHITE}... "
    printf "%b\n\n\n" "${WHITE} Config was ${LGREEN} built successfully!"
  else
@@ -367,7 +367,7 @@ function nym_systemd_run() {
 
 
 
-## Print the status nym-mixnode.service 
+## Print the status nym-mixnode.service
 function nym_status() {
   systemctl status nym-mixnode | more
   if
@@ -390,20 +390,20 @@ function nym_status() {
 
 ## display usage if the script is not run as root user
 	if [[ $USER != "root" ]]
-	then 
+	then
     printf "%b\n\n\n" "${WHITE} This script must be run as ${YELLOW} root ${WHITE} or with ${YELLOW} sudo!"
 		exit 1
 	fi
 ## Full install, config and launch of the nym-mixnode
   if [ "$1" = "-i" ]; then
-    while [ ! -d /home/nym ] ; do nym_usercreation ; done 
+    while [ ! -d /home/nym ] ; do nym_usercreation ; done
     cd /home/nym/ || printf "%b\n\n\n" "${WHITE}failed sorry"
     if [ ! -e /home/nym/nym-mixnode_linux_x86_64 ] ; then nym_download ; fi
     nym_chmod
     nym_chown
     nym_init
     nym_systemd_print
-    nym_ufw 
+    nym_ufw
     nym_systemd_run
     printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
     printf "%b\n" "${WHITE}                     Make sure to also check the official docs ! "
@@ -414,9 +414,9 @@ function nym_status() {
     printf "%b\n\n\n"
     printf "%b\n" "${LBLUE}                          https://dashboard.nymtech.net/"
     printf "%b\n\n\n"
-    printf "%b\n" "${WHITE}                                       or"                      
+    printf "%b\n" "${WHITE}                                       or"
     printf "%b\n\n\n"
-    printf "%b\n" "${YELLOW}                           ./nym-install.sh --status"
+    printf "%b\n" "${YELLOW}                           ./nym_install.sh --status"
     printf "%b\n\n\n"
     printf "%b\n" "${WHITE}                              to see how many packets"
     printf "%b\n\n\n"
@@ -433,11 +433,11 @@ function nym_status() {
   if [[ ("$1" = "--print") ||  "$1" = "-p" ]]
   then
     cd /home/nym/  > /dev/null 2>&1 && nym_systemd_print || printf "%b\n" "\n\n\n${YELLOW} /home/nym/ ${RED} does not exist. ${WHITE} Create it with the ${YELLOW} -i ${WHITE} or ${YELLOW} --install ${WHITE} flag first.\n\n\n"
-    
+
   fi
 ##  Create the systemd.service file locally
   if [[ ("$1" = "--print-local") ||  "$1" = "-l" ]]
-  then  
+  then
   cd /home/nym/  > /dev/null 2>&1 && nym_systemd_print_local || printf "%b\n" "\n\n\n${YELLOW} /home/nym/ ${RED} does not exist. ${WHITE} Create it with the ${YELLOW} -i ${WHITE} or ${YELLOW} --install ${WHITE} flag first.\n\n\n"
     nym_systemd_print_local
   fi
@@ -448,7 +448,7 @@ function nym_status() {
   fi
 ## Get status from the systemdaemon file
   if [[ ("$1" = "--status") ||  "$1" = "-s" ]]
-  then 
+  then
     nym_status
   fi
 
@@ -456,7 +456,7 @@ function nym_status() {
   if [[ ("$1" = "--firewall") ||  "$1" = "-f" ]]
   then
     nym_ufw
-  fi  
+  fi
 ## If no arguments supplied, display usage
   if [ -z "$1" ]
   then
@@ -470,7 +470,7 @@ function nym_status() {
 		display_usage
 		exit 0
 	fi
-## Prints the version of Nym used 	
+## Prints the version of Nym used
   if [[ ("$1" = "--version") ||  "$1" = "-V" ]]
   #if [[ ( $# == "--help") ||  $# == "-h" ]]
 	then
