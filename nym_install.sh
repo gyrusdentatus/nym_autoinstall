@@ -111,7 +111,7 @@ function nym_download() {
  then
     printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
     printf "%b\n\n\n" "${YELLOW} Downloading ${WHITE} nym-mixnode binaries for the nym user ..."
-    cd /home/nym && curl -LO https://github.com/nymtech/nym/releases/download/v0.8.0/nym-mixnode_linux_x86_64
+    cd /home/nym && curl -LO https://github.com/nymtech/nym/releases/download/v0.8.1/nym-mixnode_linux_x86_64
     printf "%b\n\n\n"
     printf "%b\n\n\n" "${WHITE} nym-mixnode binaries ${LGREEN} successfully downloaded ${WHITE}!"
  else
