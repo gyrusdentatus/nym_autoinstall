@@ -1,4 +1,4 @@
-# The nym-mixnode installer 0.8.0
+# The nym-mixnode installer 0.8.1
 
 ##### * An ***unofficial*** **nym-mixnode** installer.
 
