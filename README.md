@@ -30,6 +30,8 @@ In this case you can still use it to create a systemd.service file for a better 
 ## one-liner full installation
 Copy the whole command into your terminal. Assuming you have the ssh keys set up and you are ready to connect to the server
 
+**NOTE:**  **Windows** users connecting with [Putty](https://www.putty.org/) - **do not follow** these instructions. You would be connecting from your server back to the same server, which makes no sense and it won't work. Read the next section - download the installer from Github.
+
 If you are not sure how to do that and you are using MacOS 10.13+ check Section 2 in my [guide](https://gist.github.com/gyrusdentatus/e81658af3086c8d833720af53d5b2c3d).
 
 --------------------
@@ -50,6 +52,8 @@ Then just **follow the instructions** and your mixnode will run within 2 minutes
 
 ## Installation with git
 
+**NOTE:** On fresh Debian 10 server *sudo* is not installed by default or when logged in as **root** user, you do not need to use *sudo*. Simply run the commands without sudo if you're root.
+
 ``` 
 git clone https://github.com/gyrusdentatus/nym_autoinstall 
 ```
@@ -58,15 +62,26 @@ git clone https://github.com/gyrusdentatus/nym_autoinstall
 cd nym_autoinstall 
 ```
 
-``` 
-sudo bash ./nym_install.sh --help 
+```
+Make the installer executable
+
+```
+chmod +x nym_install.sh
 ```
 
-or if you want to proceed to the full install, config and launch then
+If you want to proceed to the full install, config and launch then
 
 ``` 
-sudo bash ./nym_install.sh -i 
+sudo ./nym_install.sh -i 
 ```
+
+To see full help/usage of the installer
+
+``` 
+sudo ./nym_install.sh --help 
+```
+
+
 ## Usage
 
 ```
