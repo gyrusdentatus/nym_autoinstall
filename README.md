@@ -62,7 +62,6 @@ git clone https://github.com/gyrusdentatus/nym_autoinstall
 cd nym_autoinstall 
 ```
 
-```
 Make the installer executable
 
 ```
