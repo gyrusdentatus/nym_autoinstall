@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 ## Colours variables for the installation script
 RED='\033[1;91m' # WARNINGS
@@ -16,7 +16,17 @@ fi
 }
 function downloader () {
 #set -x
-cd /home/nym/
+if [ ! -d /home/nym/.nym/mixnodes ]
+then
+	echo "Looking for nym config in /home/nym but could not find any! Enter the path of the nym-mixnode executable"
+	read nym_path
+	cd $nym_path
+
+
+else
+	cd /home/nym
+fi
+
 # set vars for version checking and url to download the latest release of nym-mixnode
 VERSION=$(curl https://github.com/nymtech/nym/releases/latest --cacert /etc/ssl/certs/ca-certificates.crt 2>/dev/null | egrep -o "[0-9|\.]{5}(-\w+)?")
 URL="https://github.com/nymtech/nym/releases/download/v$VERSION/nym-mixnode_linux_x86_64"
@@ -34,6 +44,7 @@ if [ ! -f nym-mixnode_linux_x86_64 ] || [ "$(./nym-mixnode_linux_x86_64 --versio
    fi
 else
    echo "You have the latest version of Nym-mixnode $VERSION"
+   exit 1
 
 fi
 }
@@ -51,10 +62,12 @@ printf "%b\n\n\n"
 printf "%b\n\n\n" "${WHITE} Address for the incentives rewards will be ${YELLOW} ${wallet} "
 printf "%b\n\n\n" "${WHITE} You may later change it in config.toml if needed, but you need to stop the node first and then edit it with an editor such as nano"
 
-printf "%b\n\n\n" "${WHITE} Enter your current version of the mixnode - make sure the format is right. Example input:0.8.1"
-read current_version
-printf "%b\n\n\n" "${WHITE} You entered version ${current_version}"
+current_version=$(./nym-mixnode_linux_x86_64 --version | grep Nym | cut -c 13- )
+#printf "%b\n\n\n" "${WHITE} Enter your current version of the mixnode - make sure the format is right. Example input:0.8.1"
+#read current_version
+#printf "%b\n\n\n" "${WHITE} You entered version ${current_version}"
 sudo -u nym -H ./nym-mixnode_linux_x86_64 upgrade --id $directory --incentives-address $wallet --current-version $current_version
 }
-
-downloader && sleep 2 && upgrade_nym && sleep 5 && systemctl start nym-mixnode.service
+#set -x
+downloader && echo "ok" && sleep 2 || exit 1
+upgrade_nym && sleep 5 && systemctl start nym-mixnode.service
