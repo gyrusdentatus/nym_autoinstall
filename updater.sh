@@ -7,9 +7,9 @@ WHITE='\033[1;97m' # LARGER FONT
 LBLUE='\033[1;96m' # HIGHLIGHTS / NUMBERS ...
 LGREEN='\033[1;92m' # SUCCESS
 NOCOLOR='\033[0m' # DEFAULT FONT
-current_version=$(./nym-mixnode_linux_x86_64 --version | grep Nym | cut -c 13- )
+#current_version=$(./nym-mixnode_linux_x86_64 --version | grep Nym | cut -c 13- )
 function downloader () {
-set -x
+#set -x
 if [ ! -d /home/nym/.nym/mixnodes ]
 then
 	echo "Looking for nym config in /home/nym but could not find any! Enter the path of the nym-mixnode executable"
@@ -44,7 +44,7 @@ else
 fi
 }
 function upgrade_nym () {
-set -x
+#set -x
 cd /home/nym
 select d in /home/nym/.nym/mixnodes/* ; do test -n "$d" && break; printf "%b\n\n\n" "${WHITE} >>> Invalid Selection"; done
 directory=$(echo "$d" | rev | cut -d/ -f1 | rev)
@@ -63,6 +63,6 @@ printf "%b\n\n\n" "${WHITE} You may later change it in config.toml if needed, bu
 #printf "%b\n\n\n" "${WHITE} You entered version ${current_version}"
 sudo -u nym -H ./nym-mixnode_linux_x86_64 upgrade --id $directory --incentives-address $wallet --current-version $current_version
 }
-set -x
+#set -x
 downloader && echo "ok" && sleep 2 || exit 1
 upgrade_nym && sleep 5 && systemctl start nym-mixnode.service
