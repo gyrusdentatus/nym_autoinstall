@@ -1,4 +1,4 @@
-# The nym-mixnode installer 0.8.1
+# The nym-mixnode installer 0.9.1
 
 ##### * An ***unofficial*** **nym-mixnode** installer.
 
@@ -96,6 +96,7 @@ FLAGS:
     -f  --firewall          Firewall setup
     -p  --print             Create nym-mixnode.service for systemd
     -l  --print-local       Create nym-mixnode.service for systemd LOCALLY in the current directory
+    -u  --update            Update the node to the latest release and choose an address for the incetives.
 ```
 
 ## Full build
