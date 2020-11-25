@@ -23,15 +23,15 @@ function display_usage() {
 
 
       cat 1>&2 <<EOF
-nym_install.sh 0.8.1 (2020-28-06)
+nym_install.sh 0.9.1 (2020-25-11)
 The installer and launcher for Nym mixnode
 
 USAGE:
     ./nym_install.sh [FLAGS]
 
 FLAGS:
-    -i  --install            Full installation and setup
-    -c  --config             Run only the init command without installation
+    -i  --install           Full installation and setup
+    -c  --config            Run only the init command without installation
     -r, --run               Start the node without installation
     -h, --help              Prints help information
     -V, --version           Prints version information
@@ -39,7 +39,7 @@ FLAGS:
     -f  --firewall          Firewall setup
     -p  --print             Create nym-mixnode.service for systemd
     -l  --print-local       Create nym-mixnode.service for systemd LOCALLY in the current directory
-
+    -u  --update            Update the node to the latest release and choose an address for the incetives.
 EOF
 }
 
@@ -67,7 +67,7 @@ if
   else
    printf "%b\n\n\n" "${WHITE} Some required packages for this script are not installed"
    printf "%b\n\n\n" "${WHITE} Installing them for you"
-   apt-get install ${install_essentials} -y > /dev/null 2>&1
+   apt-get update > /dev/null 2>&1 && apt-get install ${install_essentials} -y > /dev/null 2>&1
    printf "%b\n\n\n" "${WHITE} Now you have all the required packages for this installation ..."
    printf "%b\n\n\n" "${LGREEN} Continuing ... "
    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
@@ -84,18 +84,18 @@ fi
 
 
 ## Prints the Nym banner to stdout from hex
-printf "%b\n" "0a0a0a0a2020202020205f205f5f20205f2020205f205f205f5f205f5f5f0a20202020207c20275f205c7c207c207c207c20275f205c205f205c0a20202020207c207c207c207c207c5f7c207c207c207c207c207c207c0a20202020207c5f7c207c5f7c5c5f5f2c207c5f7c207c5f7c207c5f7c0a2020202020202020202020207c5f5f5f2f0a0a2020202020202020202020202028696e7374616c6c6572202d2076657273696f6e20302e382e30290a" | xxd -p -r
+printf "%b\n" "0a2020202020205f205f5f20205f2020205f205f205f5f205f5f5f0a20202020207c20275f205c7c207c207c207c20275f205c205f205c0a20202020207c207c207c207c207c5f7c207c207c207c207c207c207c0a20202020207c5f7c207c5f7c5c5f5f2c207c5f7c207c5f7c207c5f7c0a2020202020202020202020207c5f5f5f2f0a0a20202020202020202020202020286d69786e6f6465202d2076657273696f6e20302e392e3129" | xxd -p -r
 
 ## Checks if essential packages are installed
 ## if not then it installs them
 #dpkg-query -l 'curl' 'ufw' 'sudo' 'git' 'pkg-config' 'build-essential' 'libssl-dev' 'asdasd' > /dev/null 2>&1 || apt
 # creates a user nym with home directory
 function nym_usercreation() {
-  useradd -U -m -s /sbin/nologin nym
   printf "%b\n\n\n"
   printf "%b\n\n\n" "${YELLOW} Creating ${WHITE} nym user\n\n"
-  if ls -a /home/ | grep nym > /dev/null 2>&1
+  if [ ! -d /home/nym ]
   then
+    useradd -U -m -s /sbin/nologin nym
     printf "%b\n\n\n" "${WHITE} User ${YELLOW} nym ${LGREEN} created ${WHITE} with a home directory at ${YELLOW} /home/nym/"
 
   else
@@ -106,12 +106,14 @@ function nym_usercreation() {
 
 ## Checks if nym user exists and then download the latest nym-mixnode binaries to nym home directory
 function nym_download() {
+  VERSION=$(curl https://github.com/nymtech/nym/releases/latest --cacert /etc/ssl/certs/ca-certificates.crt 2>/dev/null | egrep -o "[0-9|\.]{5}(-\w+)?")
+  URL="https://github.com/nymtech/nym/releases/download/v$VERSION/nym-mixnode_linux_x86_64"
  if
    cat /etc/passwd | grep nym > /dev/null 2>&1
  then
     printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
     printf "%b\n\n\n" "${YELLOW} Downloading ${WHITE} nym-mixnode binaries for the nym user ..."
-    cd /home/nym && curl -LO https://github.com/nymtech/nym/releases/download/v0.8.1/nym-mixnode_linux_x86_64
+    cd /home/nym && curl -L -s "$URL" -o "nym-mixnode_linux_x86_64" --cacert /etc/ssl/certs/ca-certificates.crt && echo "Fetching the latest version"
     printf "%b\n\n\n"
     printf "%b\n\n\n" "${WHITE} nym-mixnode binaries ${LGREEN} successfully downloaded ${WHITE}!"
  else
@@ -144,7 +146,7 @@ function nym_chown() {
 }
 
 ## Get server ipv4
-ip_addr=`curl -sS v4.icanhazip.com`
+#ip_addr=`curl -sS v4.icanhazip.com`
 
 
 
@@ -235,7 +237,11 @@ function nym_systemd_print() {
                 printf '%s\n' "[Service]" >> /etc/systemd/system/nym-mixnode.service
                 printf '%s\n' "Type=simple" >> /etc/systemd/system/nym-mixnode.service
                 printf '%s\n' "User=nym" >> /etc/systemd/system/nym-mixnode.service
+                printf '%s\n' "LimitNOFILE=65536" >> /etc/systemd/system/nym-mixnode.service
                 printf '%s\n' "ExecStart=/home/nym/nym-mixnode_linux_x86_64 run --id $directory" >> /etc/systemd/system/nym-mixnode.service
+                printf '%s\n' "KillSignal=SIGINT" >> /etc/systemd/system/nym-mixnode.service
+                printf '%s\n' "Restart=on-failure" >> /etc/systemd/system/nym-mixnode.service
+                printf '%s\n' "RestartSec=30" >> /etc/systemd/system/nym-mixnode.service
                 printf '%s\n' "Restart=on-abort" >> /etc/systemd/system/nym-mixnode.service
                 printf '%s\n' "" >> /etc/systemd/system/enym-mixnode.service
                 printf '%s\n' "[Install]" >> /etc/systemd/system/nym-mixnode.service
@@ -280,8 +286,11 @@ function nym_systemd_print_local() {
                 printf '%s\n' "[Service]" >> nym-mixnode.service
                 printf '%s\n' "Type=simple" >> nym-mixnode.service
                 printf '%s\n' "User=nym" >> nym-mixnode.service
+                printf '%s\n' "LimitNOFILE=65536" >> nym-mixnode.service
                 printf '%s\n' "ExecStart=/home/nym/nym-mixnode_linux_x86_64 run --id $directory" >> nym-mixnode.service
-                printf '%s\n' "Restart=on-abort" >> nym-mixnode.service
+                printf '%s\n' "KillSignal=SIGINT" >> nym-mixnode.Service
+                printf '%s\n' "Restart=on-failure" >> nym-mixnode.service
+                printf '%s\n' "RestartSec=30" >> nym-mixnode.service
                 printf '%s\n' "" >> nym-mixnode.service
                 printf '%s\n' "[Install]" >> nym-mixnode.service
                 printf '%s\n' "WantedBy=multi-user.target" >> nym-mixnode.service
@@ -300,13 +309,14 @@ function nym_systemd_print_local() {
 ## Then runs the binary with the given input from user and builds config.
 function nym_init() {
  #get server's ipv4 address
- ip_addr=`curl -sS v4.icanhazip.com`
+ ip_addr=`curl -sS ipinfo.io/ip`
  printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
  printf "%b\n\n\n" "${YELLOW} Configuration ${WHITE} file and keys: "
  if
    pwd | grep /home/nym > /dev/null 2>&1
  then
-   printf "%b\n\n\n" "${WHITE} What name do you want for your node ${YELLOW} id?"
+   printf "%b\n\n\n" "${WHITE} What name do you want for your node ${YELLOW} id? "
+   printf "%b\n\n\n" "${WHITE} This is only for your own purposes and creates a directory with that name in ${YELLOW}/home/nym/.nym/mixnodes/<YOURID>. ${YELLOW} Config ${WHITE} and ${YELLOW} keys ${WHITE}are stored there "
    printf "%b\n\n\n"
    read id
    printf "%b\n\n\n"
@@ -317,9 +327,14 @@ function nym_init() {
    read location
    if [[ -z "${location// }" ]] ; then location="unknown" ; fi
    printf "%b\n\n\n"
+   printf "%b\n\n\n" "${WHITE} Enter the Liquid-BTC address for the incentives rewards"
+   printf "%b\n\n\n"
+   read wallet
+   printf "%b\n\n\n" "${WHITE} Address for the incentives rewards will be ${YELLOW} ${wallet} "
+   read
    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
    # borrows a shell for nym user to initialize the node config.
-   sudo -u nym -H ./nym-mixnode_linux_x86_64 init --id $id --layer 2 --location $location --host $ip_addr
+   sudo -u nym -H ./nym-mixnode_linux_x86_64 init --id $id --location $location --host $ip_addr --incentives-address $wallet
    printf "%b\n\n\n"
    printf "%b\n\n\n" "${WHITE}  Your node has id ${YELLOW} $id ${WHITE} located in ${LBLUE} $location ${WHITE} with ip ${YELLOW} $ip_addr ${WHITE}... "
    printf "%b\n\n\n" "${WHITE} Config was ${LGREEN} built successfully ${WHITE}!"
@@ -385,7 +400,67 @@ function nym_status() {
   fi
 }
 
-## Checks if port 1789 is enabled in firewall settings / ufw
+## Download the latest version of the binaries
+function downloader () {
+#set -x
+if [ ! -d /home/nym/.nym/mixnodes ]
+then
+	echo "Looking for nym config in /home/nym but could not find any! Enter the path of the nym-mixnode executable"
+	exit 1
+else
+	cd /home/nym
+fi
+
+# set vars for version checking and url to download the latest release of nym-mixnode
+current_version=$(./nym-mixnode_linux_x86_64 --version | grep Nym | cut -c 13- )
+VERSION=$(curl https://github.com/nymtech/nym/releases/latest --cacert /etc/ssl/certs/ca-certificates.crt 2>/dev/null | egrep -o "[0-9|\.]{5}(-\w+)?")
+URL="https://github.com/nymtech/nym/releases/download/v$VERSION/nym-mixnode_linux_x86_64"
+
+# Check if the version is up to date. If not, fetch the latest release.
+if [ ! -f nym-mixnode_linux_x86_64 ] || [ "$(./nym-mixnode_linux_x86_64 --version | grep Nym | cut -c 13- )" != "$VERSION" ]
+   then
+       if systemctl list-units --state=running | grep nym-mixnode
+          then echo "stopping nym-mixnode.service to update the node ..." && systemctl stop nym-mixnode
+                curl -L -s "$URL" -o "nym-mixnode_linux_x86_64" --cacert /etc/ssl/certs/ca-certificates.crt && echo "Fetching the latest version" && pwd
+          else echo " nym-mixnode.service is inactive or not existing. Downloading new binaries ..." && pwd
+    		curl -L -s "$URL" -o "nym-mixnode_linux_x86_64" --cacert /etc/ssl/certs/ca-certificates.crt && echo "Fetching the latest version" && pwd
+	   # Make it executable
+   chmod +x ./nym-mixnode_linux_x86_64 && chown nym:nym ./nym-mixnode_linux_x86_64
+   fi
+else
+   echo "You have the latest version of Nym-mixnode $VERSION"
+   exit 1
+
+fi
+}
+function upgrade_nym () {
+#set -x
+cd /home/nym
+select d in /home/nym/.nym/mixnodes/* ; do test -n "$d" && break; printf "%b\n\n\n" "${WHITE} >>> Invalid Selection"; done
+directory=$(echo "$d" | rev | cut -d/ -f1 | rev)
+printf "%b\n\n\n"
+printf "%b\n\n\n" "${WHITE} You selected ${YELLOW} $directory"
+sleep 2
+printf "%b\n\n\n" "${WHITE} Enter the Liquid-BTC address for the incentives rewards"
+read wallet
+printf "%b\n\n\n"
+printf "%b\n\n\n" "${WHITE} Address for the incentives rewards will be ${YELLOW} ${wallet} "
+printf "%b\n\n\n" "${WHITE} You may later change it in config.toml if needed, but you need to stop the node first and then edit it with an editor such as nano"
+
+#current_version=$(./nym-mixnode_linux_x86_64 --version | grep Nym | cut -c 13- )
+#printf "%b\n\n\n" "${WHITE} Enter your current version of the mixnode - make sure the format is right. Example input:0.8.1"
+#read current_version
+#printf "%b\n\n\n" "${WHITE} You entered version ${current_version}"
+sudo -u nym -H ./nym-mixnode_linux_x86_64 upgrade --id $directory --incentives-address $wallet --current-version $current_version
+}
+#set -x
+
+function mixnode_update () {
+downloader && echo "ok" && sleep 2 || exit 1
+upgrade_nym && sleep 5 && systemctl start nym-mixnode.service && printf "%b\n\n\n" "${WHITE} Check if the update was successful - ./nym_install.sh -s ${NOCOLOR}"
+}
+
+
 
 
 ## display usage if the script is not run as root user
@@ -474,6 +549,15 @@ function nym_status() {
   then
      display_usage
 	exit 0
+  fi
+## Update the node -
+## 1. See if nym-mixnode.service is running - if yes stop it
+## 2. fetch the latest binaries
+## 3. ./nym-mixnode upgrade and let user choose id and incentives Address
+## 4. run the nym-mixnode.service again
+  if [[ ("$1" = "--update") ||  "$1" = "-u" ]]
+  then
+    mixnode_update || printf "%b\n" "\n\n\n${WHITE} Something went ${RED} wrong. ${NOCOLOR}"
   fi
 
 #nym_usercreation
