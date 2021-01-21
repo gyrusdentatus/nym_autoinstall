@@ -405,6 +405,7 @@ function downloader () {
 #set -x
 if [ ! -d /home/nym/.nym/mixnodes ]
 then
+	# todo: add option to set the user and PATH for the mixnode but eventually decided not to this at the moment...seems unneccessary
 	echo "Looking for nym config in /home/nym but could not find any! Enter the path of the nym-mixnode executable"
 	exit 1
 else
@@ -420,7 +421,7 @@ URL="https://github.com/nymtech/nym/releases/download/v$VERSION/nym-mixnode_linu
 if [ ! -f nym-mixnode_linux_x86_64 ] || [ "$(./nym-mixnode_linux_x86_64 --version | grep Nym | cut -c 13- )" != "$VERSION" ]
    then
        if systemctl list-units --state=running | grep nym-mixnode
-          then echo "stopping nym-mixnode.service to update the node ..." && systemctl stop nym-mixnode
+          then echo "stopping nym-mixnode.service to update the node ..." && systemctl kill --signal=SIGINT nym-mixnode
                 curl -L -s "$URL" -o "nym-mixnode_linux_x86_64" --cacert /etc/ssl/certs/ca-certificates.crt && echo "Fetching the latest version" && pwd
           else echo " nym-mixnode.service is inactive or not existing. Downloading new binaries ..." && pwd
     		curl -L -s "$URL" -o "nym-mixnode_linux_x86_64" --cacert /etc/ssl/certs/ca-certificates.crt && echo "Fetching the latest version" && pwd
@@ -447,10 +448,6 @@ printf "%b\n\n\n"
 printf "%b\n\n\n" "${WHITE} Address for the incentives rewards will be ${YELLOW} ${wallet} "
 printf "%b\n\n\n" "${WHITE} You may later change it in config.toml if needed, but you need to stop the node first and then edit it with an editor such as nano"
 
-#current_version=$(./nym-mixnode_linux_x86_64 --version | grep Nym | cut -c 13- )
-#printf "%b\n\n\n" "${WHITE} Enter your current version of the mixnode - make sure the format is right. Example input:0.8.1"
-#read current_version
-#printf "%b\n\n\n" "${WHITE} You entered version ${current_version}"
 sudo -u nym -H ./nym-mixnode_linux_x86_64 upgrade --id $directory --incentives-address $wallet --current-version $current_version
 }
 #set -x
