@@ -442,13 +442,14 @@ directory=$(echo "$d" | rev | cut -d/ -f1 | rev)
 printf "%b\n\n\n"
 printf "%b\n\n\n" "${WHITE} You selected ${YELLOW} $directory"
 sleep 2
-printf "%b\n\n\n" "${WHITE} Enter the Liquid-BTC address for the incentives rewards"
-read wallet
+printf "%b\n\n\n" "${WHITE} Enter your Telegram handle beginning with @"
 printf "%b\n\n\n"
-printf "%b\n\n\n" "${WHITE} Address for the incentives rewards will be ${YELLOW} ${wallet} "
-printf "%b\n\n\n" "${WHITE} You may later change it in config.toml if needed, but you need to stop the node first and then edit it with an editor such as nano"
+read telegram
+printf "%b\n\n\n" "${WHITE} Your Telegram handle for the faucet will be ${YELLOW} ${telegram} "
 
-sudo -u nym -H ./nym-mixnode_linux_x86_64 upgrade --id $directory --incentives-address $wallet --current-version $current_version
+sudo -u nym -H ./nym-mixnode_linux_x86_64 upgrade --id $directory 
+sleep 2
+sudo -u nym -H ./nym-mixnode_linux_x86_64 sign --id $directory --text ${telegram}
 }
 #set -x
 
