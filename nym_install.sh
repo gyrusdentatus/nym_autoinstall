@@ -414,7 +414,7 @@ fi
 
 # set vars for version checking and url to download the latest release of nym-mixnode
 current_version=$(./nym-mixnode_linux_x86_64 --version | grep Nym | cut -c 13- )
-VERSION=$(curl https://github.com/nymtech/nym/releases/latest --cacert /etc/ssl/certs/ca-certificates.crt 2>/dev/null | egrep -o "[0-9|\.]{5}(-\w+)?")
+VERSION=$(curl https://github.com/nymtech/nym/releases/latest --cacert /etc/ssl/certs/ca-certificates.crt 2>/dev/null | egrep -o "[0-9|\.]{6}(-\w+)?")
 URL="https://github.com/nymtech/nym/releases/download/v$VERSION/nym-mixnode_linux_x86_64"
 
 # Check if the version is up to date. If not, fetch the latest release.
