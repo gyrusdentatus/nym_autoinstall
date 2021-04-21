@@ -309,7 +309,7 @@ function nym_systemd_print_local() {
 ## Then runs the binary with the given input from user and builds config.
 function nym_init() {
  #get server's ipv4 address
- set -x
+ #set -x
  ip_addr=`curl -sS ipinfo.io/ip`
  printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
  printf "%b\n\n\n" "${YELLOW} Configuration ${WHITE} file and keys: "
