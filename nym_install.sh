@@ -118,7 +118,7 @@ function nym_download() {
     printf "%b\n\n\n" "${WHITE} nym-mixnode binaries ${LGREEN} successfully downloaded ${WHITE}!"
  else
     printf "%b\n\n\n"
-    printf "%b\n\n\n" "${WHITE} Download ${RED} failed..."
+    printf "%b\n\n\n" "${WHITE} Download ${RED} failed...${NOCOLOR}"
  fi
 }
 
@@ -131,10 +131,10 @@ function nym_chmod() {
    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
    printf "%b\n\n\n" "${WHITE} Making the nym binary ${YELLOW} executable ..."
    chmod 755 /home/nym/nym-mixnode_linux_x86_64
-   printf "%b\n\n\n" "${LGREEN} Successfully ${WHITE} made the file ${YELLOW} executable !"
+   printf "%b\n\n\n" "${LGREEN} Successfully ${WHITE} made the file ${YELLOW} executable !${NOCOLOR}"
  else
    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
-   printf "%b\n\n\n" "${WHITE} Something went ${RED} wrong, wrong path..?"
+   printf "%b\n\n\n" "${WHITE} Something went ${RED} wrong, wrong path..?${NOCOLOR}"
  fi
 }
 
@@ -369,7 +369,7 @@ function nym_systemd_run() {
       systemctl status nym-mixnode | grep -e "active (running)" > /dev/null 2>&1
     then
       printf "%b\n\n\n"
-      printf "%b\n\n\n" "${WHITE} Your node ${YELLOW} ${service_id} ${WHITE} is ${LGREEN} up ${WHITE} and ${LGREEN} running!!!!"
+      printf "%b\n\n\n" "${WHITE} Your node ${YELLOW} ${service_id} ${WHITE} is ${LGREEN} up ${WHITE} and ${LGREEN} running!!!!${NOCOLOR}"
     else
       printf "%b\n\n\n" "${WHITE} Node is ${RED} not running ${WHITE} for some reason ...check it ${LBLUE} ./nym-install.sh -s [--status]"
     fi
@@ -384,13 +384,13 @@ function nym_status() {
       systemctl status nym-mixnode | grep -e "active (running)" > /dev/null 2>&1
     then
       printf "%b\n\n\n"
-      printf "%b\n\n\n" "${WHITE} Your ${YELLOW} node ${WHITE} is ${LGREEN} up ${WHITE} and ${LGREEN} running ${WHITE}!"
+      printf "%b\n\n\n" "${WHITE} Your ${YELLOW} node ${WHITE} is ${LGREEN} up ${WHITE} and ${LGREEN} running ${NOCOLOR}!"
       printf "%b\n\n\n"
   elif
       systemctl status nym-mixnode | more | grep -i inactive  > /dev/null 2>&1
     then
       printf "%b\n\n\n"
-      printf "%b\n\n\n" "${WHITE} Your ${YELLOW} node ${RED}is not running ${WHITE}. Run the script with -r option"
+      printf "%b\n\n\n" "${WHITE} Your ${YELLOW} node ${RED}is not running ${WHITE}. Run the script with -r option${NOCOLOR}"
       printf "%b\n\n\n"
   fi
 }
@@ -459,7 +459,7 @@ upgrade_nym && sleep 5 && systemctl start nym-mixnode.service && printf "%b\n\n\
 ## display usage if the script is not run as root user
 	if [[ $USER != "root" ]]
 	then
-    printf "%b\n\n\n" "${WHITE} This script must be run as ${YELLOW} root ${WHITE} or with ${YELLOW} sudo!"
+    printf "%b\n\n\n" "${WHITE} This script must be run as ${YELLOW} root ${WHITE} or with ${YELLOW} sudo!${NOCOLOR}"
 		exit 1
 	fi
 ## Full install, config and launch of the nym-mixnode
