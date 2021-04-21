@@ -57,20 +57,20 @@ install_essentials='curl ufw sudo git pkg-config build-essential libssl-dev'
 ## Checks if all required packages are installed
 ## If not then it installs them with apt-get
 if
-   printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
+   printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------${NOCOLOR}"
    printf "%b\n\n\n" "${WHITE} Checking requirements ..."
    dpkg-query -l 'curl' 'ufw' 'sudo' 'git' 'pkg-config' 'build-essential' 'libssl-dev' > /dev/null 2>&1
   then
    printf "%b\n\n\n" "${WHITE} You have all the required packages for this installation ..."
    printf "%b\n\n\n" "${LGREEN} Continuing ..."
-   printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
+   printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------${NOCOLOR}"
   else
    printf "%b\n\n\n" "${WHITE} Some required packages for this script are not installed"
    printf "%b\n\n\n" "${WHITE} Installing them for you"
    apt-get update > /dev/null 2>&1 && apt-get install ${install_essentials} -y > /dev/null 2>&1
    printf "%b\n\n\n" "${WHITE} Now you have all the required packages for this installation ..."
    printf "%b\n\n\n" "${LGREEN} Continuing ... "
-   printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
+   printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------${NOCOLOR}"
 fi
 
 
@@ -84,7 +84,7 @@ fi
 
 
 ## Prints the Nym banner to stdout from hex
-printf "%b\n" "0a2020202020205f205f5f20205f2020205f205f205f5f205f5f5f0a20202020207c20275f205c7c207c207c207c20275f205c205f205c0a20202020207c207c207c207c207c5f7c207c207c207c207c207c207c0a20202020207c5f7c207c5f7c5c5f5f2c207c5f7c207c5f7c207c5f7c0a2020202020202020202020207c5f5f5f2f0a0a20202020202020202020202020286d69786e6f6465202d2076657273696f6e20302e392e3129" | xxd -p -r
+#printf "%b\n" "0a2020202020205f205f5f20205f2020205f205f205f5f205f5f5f0a20202020207c20275f205c7c207c207c207c20275f205c205f205c0a20202020207c207c207c207c207c5f7c207c207c207c207c207c207c0a20202020207c5f7c207c5f7c5c5f5f2c207c5f7c207c5f7c207c5f7c0a2020202020202020202020207c5f5f5f2f0a0a20202020202020202020202020286d69786e6f6465202d2076657273696f6e20302e392e3129" | xxd -p -r
 
 ## Checks if essential packages are installed
 ## if not then it installs them
@@ -106,7 +106,7 @@ function nym_usercreation() {
 
 ## Checks if nym user exists and then download the latest nym-mixnode binaries to nym home directory
 function nym_download() {
-  VERSION=$(curl https://github.com/nymtech/nym/releases/latest --cacert /etc/ssl/certs/ca-certificates.crt 2>/dev/null | egrep -o "[0-9|\.]{5}(-\w+)?")
+  VERSION=$(curl https://github.com/nymtech/nym/releases/latest --cacert /etc/ssl/certs/ca-certificates.crt 2>/dev/null | egrep -o "[0-9|\.]{6}(-\w+)?")
   URL="https://github.com/nymtech/nym/releases/download/v$VERSION/nym-mixnode_linux_x86_64"
  if
    cat /etc/passwd | grep nym > /dev/null 2>&1
@@ -118,7 +118,7 @@ function nym_download() {
     printf "%b\n\n\n" "${WHITE} nym-mixnode binaries ${LGREEN} successfully downloaded ${WHITE}!"
  else
     printf "%b\n\n\n"
-    printf "%b\n\n\n" "${WHITE} Download ${RED} failed..."
+    printf "%b\n\n\n" "${WHITE} Download ${RED} failed...${NOCOLOR}"
  fi
 }
 
@@ -131,10 +131,10 @@ function nym_chmod() {
    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
    printf "%b\n\n\n" "${WHITE} Making the nym binary ${YELLOW} executable ..."
    chmod 755 /home/nym/nym-mixnode_linux_x86_64
-   printf "%b\n\n\n" "${LGREEN} Successfully ${WHITE} made the file ${YELLOW} executable !"
+   printf "%b\n\n\n" "${LGREEN} Successfully ${WHITE} made the file ${YELLOW} executable !${NOCOLOR}"
  else
    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
-   printf "%b\n\n\n" "${WHITE} Something went ${RED} wrong, wrong path..?"
+   printf "%b\n\n\n" "${WHITE} Something went ${RED} wrong, wrong path..?${NOCOLOR}"
  fi
 }
 
@@ -309,11 +309,12 @@ function nym_systemd_print_local() {
 ## Then runs the binary with the given input from user and builds config.
 function nym_init() {
  #get server's ipv4 address
+ #set -x
  ip_addr=`curl -sS ipinfo.io/ip`
  printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
  printf "%b\n\n\n" "${YELLOW} Configuration ${WHITE} file and keys: "
  if
-   pwd | grep /home/nym > /dev/null 2>&1
+   [[ $PWD/ != /home/nym ]] | cd /home/nym && echo $PWD
  then
    printf "%b\n\n\n" "${WHITE} What name do you want for your node ${YELLOW} id? "
    printf "%b\n\n\n" "${WHITE} This is only for your own purposes and creates a directory with that name in ${YELLOW}/home/nym/.nym/mixnodes/<YOURID>. ${YELLOW} Config ${WHITE} and ${YELLOW} keys ${WHITE}are stored there "
@@ -322,21 +323,15 @@ function nym_init() {
    printf "%b\n\n\n"
    printf "%b\n\n\n" "${WHITE} Your node name will be ${YELLOW} $id. ${WHITE} Use it nextime if you restart your server or the node is not running"
    printf "%b\n\n\n"
-   printf "%b\n\n\n" "${WHITE} Where is your server located? Leave blank if you would rather not tell ...${LBLUE}"
+   printf "%b\n\n\n" "${WHITE} Enter your Telegram handle beginning with @"
    printf "%b\n\n\n"
-   read location
-   if [[ -z "${location// }" ]] ; then location="unknown" ; fi
-   printf "%b\n\n\n"
-   printf "%b\n\n\n" "${WHITE} Enter the Liquid-BTC address for the incentives rewards"
-   printf "%b\n\n\n"
-   read wallet
-   printf "%b\n\n\n" "${WHITE} Address for the incentives rewards will be ${YELLOW} ${wallet} "
-   read
+   read telegram
+   printf "%b\n\n\n" "${WHITE} Your Telegram handle for the faucet will be ${YELLOW} ${telegram} "
    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
    # borrows a shell for nym user to initialize the node config.
-   sudo -u nym -H ./nym-mixnode_linux_x86_64 init --id $id --location $location --host $ip_addr --incentives-address $wallet
+   sudo -u nym -H /home/nym/nym-mixnode_linux_x86_64 init --id $id --host $ip_addr && sleep 2 && sudo -u nym -H /home/nym/nym-mixnode_linux_x86_64 sign --id $id --text ${telegram}
    printf "%b\n\n\n"
-   printf "%b\n\n\n" "${WHITE}  Your node has id ${YELLOW} $id ${WHITE} located in ${LBLUE} $location ${WHITE} with ip ${YELLOW} $ip_addr ${WHITE}... "
+   printf "%b\n\n\n" "${WHITE} Your node has id ${YELLOW} $id ${WHITE} and has to be signed with ${LBLUE} $telegram ${WHITE} with ip ${YELLOW} $ip_addr ${WHITE}... "
    printf "%b\n\n\n" "${WHITE} Config was ${LGREEN} built successfully ${WHITE}!"
  else
    printf "%b\n\n\n" "${WHITE} Something went ${RED} wrong {WHITE}..."
@@ -374,7 +369,7 @@ function nym_systemd_run() {
       systemctl status nym-mixnode | grep -e "active (running)" > /dev/null 2>&1
     then
       printf "%b\n\n\n"
-      printf "%b\n\n\n" "${WHITE} Your node ${YELLOW} ${service_id} ${WHITE} is ${LGREEN} up ${WHITE} and ${LGREEN} running!!!!"
+      printf "%b\n\n\n" "${WHITE} Your node ${YELLOW} ${service_id} ${WHITE} is ${LGREEN} up ${WHITE} and ${LGREEN} running!!!!${NOCOLOR}"
     else
       printf "%b\n\n\n" "${WHITE} Node is ${RED} not running ${WHITE} for some reason ...check it ${LBLUE} ./nym-install.sh -s [--status]"
     fi
@@ -389,13 +384,13 @@ function nym_status() {
       systemctl status nym-mixnode | grep -e "active (running)" > /dev/null 2>&1
     then
       printf "%b\n\n\n"
-      printf "%b\n\n\n" "${WHITE} Your ${YELLOW} node ${WHITE} is ${LGREEN} up ${WHITE} and ${LGREEN} running ${WHITE}!"
+      printf "%b\n\n\n" "${WHITE} Your ${YELLOW} node ${WHITE} is ${LGREEN} up ${WHITE} and ${LGREEN} running ${NOCOLOR}!"
       printf "%b\n\n\n"
   elif
       systemctl status nym-mixnode | more | grep -i inactive  > /dev/null 2>&1
     then
       printf "%b\n\n\n"
-      printf "%b\n\n\n" "${WHITE} Your ${YELLOW} node ${RED}is not running ${WHITE}. Run the script with -r option"
+      printf "%b\n\n\n" "${WHITE} Your ${YELLOW} node ${RED}is not running ${WHITE}. Run the script with -r option${NOCOLOR}"
       printf "%b\n\n\n"
   fi
 }
@@ -464,7 +459,7 @@ upgrade_nym && sleep 5 && systemctl start nym-mixnode.service && printf "%b\n\n\
 ## display usage if the script is not run as root user
 	if [[ $USER != "root" ]]
 	then
-    printf "%b\n\n\n" "${WHITE} This script must be run as ${YELLOW} root ${WHITE} or with ${YELLOW} sudo!"
+    printf "%b\n\n\n" "${WHITE} This script must be run as ${YELLOW} root ${WHITE} or with ${YELLOW} sudo!${NOCOLOR}"
 		exit 1
 	fi
 ## Full install, config and launch of the nym-mixnode
@@ -479,17 +474,19 @@ upgrade_nym && sleep 5 && systemctl start nym-mixnode.service && printf "%b\n\n\
     nym_ufw
     nym_systemd_run
     printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
-    printf "%b\n" "${WHITE}                     Make sure to also check the official docs ! "
+    printf "%b\n" "${WHITE}                1. Make sure to also check the official docs for the next steps ! "
     printf "%b\n\n\n"
     printf "%b\n" "${LGREEN}                            https://nymtech.net/docs/"
     printf "%b\n\n\n"
-    printf "%b\n" "${WHITE}                              Check the dashboard"
+    printf "%b\n" "${WHITE}                2.       go to telegram and claim your mixnode"
     printf "%b\n\n\n"
-    printf "%b\n" "${LBLUE}                          https://dashboard.nymtech.net/"
+    printf "%b\n" "${WHITE}                3. Create a wallet https://web-wallet-finney.nymtech.net/"
     printf "%b\n\n\n"
-    printf "%b\n" "${WHITE}                                       or"
+    printf "%b\n" "${WHITE}                4. SAVE the mnemonics, copy your address and on telegram do: /faucet hal1xxxxx "
     printf "%b\n\n\n"
-    printf "%b\n" "${YELLOW}                           ./nym_install.sh --status"
+    printf "%b\n" "${WHITE}                5. Go back to your wallet and bond your mixnode"
+    printf "%b\n\n\n"
+    printf "%b\n" "${WHITE}               6. Check if your node is all good https://testnet-explorer.nymtech.net/"
     printf "%b\n\n\n"
     printf "%b\n" "${WHITE}                              to see how many packets"
     printf "%b\n\n\n"
@@ -557,7 +554,30 @@ upgrade_nym && sleep 5 && systemctl start nym-mixnode.service && printf "%b\n\n\
   then
     mixnode_update || printf "%b\n" "\n\n\n${WHITE} Something went ${RED} wrong. ${NOCOLOR}"
   fi
-
+  if [[ ("$1" = "--testnet") || "$1" = "-t" ]]
+  then
+    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
+    printf "%b\n" "${WHITE}     1. ${YELLOW}Make sure to check the ${LGREEN} official docs${WHITE} for the next steps ${YELLOW}after installation ! "
+    printf "%b\n\n\n"
+    printf "%b\n" "${LGREEN}                    https://nymtech.net/docs/"
+    printf "%b\n\n\n"
+    printf "%b\n" "${WHITE}     2. go to ${LBLUE}Telegram help chat ${WHITE} and ${YELLOW}claim your mixnode"
+    printf "%b\n\n\n"
+    printf "%b\n" "${WHITE}     3.${YELLOW} Create a wallet ${LGREEN}https://web-wallet-finney.nymtech.net/${WHITE}"
+    printf "%b\n\n\n"
+    printf "%b\n" "${WHITE}     4. ${YELLOW}SAVE the mnemonics, copy your address ${WHITE}and on ${LBLUE}Telegram${WHITE} do: /faucet hal1xxxxx "
+    printf "%b\n\n\n"
+    printf "%b\n" "${WHITE}     5. Go back to your ${YELLOW}wallet${WHITE} and ${YELLOW}bond your mixnode"
+    printf "%b\n\n\n"
+    printf "%b\n" "${WHITE}     6. Check if your node is all good ${LGREEN}https://testnet-explorer.nymtech.net/${WHITE}"
+    printf "%b\n\n\n"
+    #printf "%b\n" "${WHITE}                              to see how many packets"
+    #printf "%b\n\n\n"
+    #printf "%b\n" "${WHITE}                            You have ${YELLOW} mixed ${WHITE} so far ! "
+    #printf "%b\n\n\n"
+    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------${NOCOLOR}"
+  exit 0
+  fi 
 #nym_usercreation
 #nym_download
 #nym_chmod
