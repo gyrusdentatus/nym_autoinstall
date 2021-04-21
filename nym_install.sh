@@ -57,20 +57,20 @@ install_essentials='curl ufw sudo git pkg-config build-essential libssl-dev'
 ## Checks if all required packages are installed
 ## If not then it installs them with apt-get
 if
-   printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
+   printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------${NOCOLOR}"
    printf "%b\n\n\n" "${WHITE} Checking requirements ..."
    dpkg-query -l 'curl' 'ufw' 'sudo' 'git' 'pkg-config' 'build-essential' 'libssl-dev' > /dev/null 2>&1
   then
    printf "%b\n\n\n" "${WHITE} You have all the required packages for this installation ..."
    printf "%b\n\n\n" "${LGREEN} Continuing ..."
-   printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
+   printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------${NOCOLOR}"
   else
    printf "%b\n\n\n" "${WHITE} Some required packages for this script are not installed"
    printf "%b\n\n\n" "${WHITE} Installing them for you"
    apt-get update > /dev/null 2>&1 && apt-get install ${install_essentials} -y > /dev/null 2>&1
    printf "%b\n\n\n" "${WHITE} Now you have all the required packages for this installation ..."
    printf "%b\n\n\n" "${LGREEN} Continuing ... "
-   printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
+   printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------${NOCOLOR}"
 fi
 
 
@@ -84,7 +84,7 @@ fi
 
 
 ## Prints the Nym banner to stdout from hex
-printf "%b\n" "0a2020202020205f205f5f20205f2020205f205f205f5f205f5f5f0a20202020207c20275f205c7c207c207c207c20275f205c205f205c0a20202020207c207c207c207c207c5f7c207c207c207c207c207c207c0a20202020207c5f7c207c5f7c5c5f5f2c207c5f7c207c5f7c207c5f7c0a2020202020202020202020207c5f5f5f2f0a0a20202020202020202020202020286d69786e6f6465202d2076657273696f6e20302e392e3129" | xxd -p -r
+#printf "%b\n" "0a2020202020205f205f5f20205f2020205f205f205f5f205f5f5f0a20202020207c20275f205c7c207c207c207c20275f205c205f205c0a20202020207c207c207c207c207c5f7c207c207c207c207c207c207c0a20202020207c5f7c207c5f7c5c5f5f2c207c5f7c207c5f7c207c5f7c0a2020202020202020202020207c5f5f5f2f0a0a20202020202020202020202020286d69786e6f6465202d2076657273696f6e20302e392e3129" | xxd -p -r
 
 ## Checks if essential packages are installed
 ## if not then it installs them
