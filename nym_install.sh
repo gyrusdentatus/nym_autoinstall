@@ -23,8 +23,8 @@ function display_usage() {
 
 
       cat 1>&2 <<EOF
-nym_install.sh 0.9.1 (2020-25-11)
-The installer and launcher for Nym mixnode
+nym_install.sh 0.10.0 (2021-22-04)
+The installer and launcher for Nym mixnode v0.10.0
 
 USAGE:
     ./nym_install.sh [FLAGS]
