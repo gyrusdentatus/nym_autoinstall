@@ -610,7 +610,7 @@ upgrade_nym && sleep 5 && systemctl start nym-mixnode.service && printf "%b\n\n\
     printf "%b\n\n\n"
     printf "%b\n" "${WHITE}     5. Go back to your ${YELLOW}wallet${WHITE} and ${YELLOW}bond your mixnode"
     printf "%b\n\n\n"
-    printf "%b\n" "${WHITE}     6. Check if your node is all good ${LGREEN}https://testnet-explorer.nymtech.net/${WHITE}"
+    printf "%b\n" "${WHITE}     6. Check if your node is all good ${LGREEN}https://testnet-finney-explorer.nymtech.net/${WHITE}"
     printf "%b\n\n\n"
     #printf "%b\n" "${WHITE}                              to see how many packets"
     #printf "%b\n\n\n"
