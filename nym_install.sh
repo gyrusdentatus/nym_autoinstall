@@ -30,9 +30,12 @@ USAGE:
     ./nym_install.sh [FLAGS]
 
 FLAGS:
+    -t  --testnet           Display testnet help and steps
     -i  --install           Full installation and setup
     -c  --config            Run only the init command without installation
     -r, --run               Start the node without installation
+    -m  --claim             Display the claim output of your node
+    -g  --sign              Sign your node
     -h, --help              Prints help information
     -V, --version           Prints version information
     -s  --status            Prints status of the running node
@@ -329,7 +332,7 @@ function nym_init() {
    printf "%b\n\n\n" "${WHITE} Your Telegram handle for the faucet will be ${YELLOW} ${telegram} "
    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
    # borrows a shell for nym user to initialize the node config.
-   sudo -u nym -H /home/nym/nym-mixnode_linux_x86_64 init --id $id --host $ip_addr && sleep 2 && sudo -u nym -H /home/nym/nym-mixnode_linux_x86_64 sign --id $id --text ${telegram}
+   sudo -u nym -H /home/nym/nym-mixnode_linux_x86_64 init --id $id --host $ip_addr && sleep 2 && sudo -u nym -H /home/nym/nym-mixnode_linux_x86_64 sign --id $id --text ${telegram} 2>&1 | tee claim.txt && chown nym:nym claim.txt
    printf "%b\n\n\n"
    printf "%b\n\n\n" "${WHITE} Your node has id ${YELLOW} $id ${WHITE} and has to be signed with ${LBLUE} $telegram ${WHITE} with ip ${YELLOW} $ip_addr ${WHITE}... "
    printf "%b\n\n\n" "${WHITE} Config was ${LGREEN} built successfully ${WHITE}!"
@@ -352,7 +355,22 @@ function nym_systemd_run() {
 
     service_id=$(cat /etc/systemd/system/nym-mixnode.service | grep id | cut -c 55-)
 
-
+function nym_sign () {
+ #get server's ipv4 address printf "%b\n\n\n" "${WHITE} >>> Invalid Selection"; done
+    directory=$(printf "%b\n\n\n" "${WHITE}$d" | rev | cut -d/ -f1 | rev)
+    printf "\e[1;82mYou selected\e[0m\e[3;11m ${WHITE} $directory\e[0m\n"
+    printf "%b\n\n\n"
+    printf "%b\n\n\n" "${WHITE} Your node name will be ${YELLOW} $id. ${WHITE} Use it nextime if you restart your server or the node is not running"
+    printf "%b\n\n\n"
+    printf "%b\n\n\n" "${WHITE} Enter your Telegram handle beginning with @"
+    printf "%b\n\n\n"
+    read telegram
+    printf "%b\n\n\n" "${WHITE} Your Telegram handle for the faucet will be ${YELLOW} ${telegram} "
+    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
+    # borrows a shell for nym user to initialize the node config.
+    sudo -u nym -H /home/nym/nym-mixnode_linux_x86_64 sign --id $directory --text ${telegram} 2>&1 | tee -a claim.txt && chown nym:nym claim.txt
+    printf "%b\n\n\n"
+}
    ## Check if user chose a valid node written in the systemd.service file
     if [ "$service_id" == "$directory" ]
     then
@@ -522,6 +540,31 @@ upgrade_nym && sleep 5 && systemctl start nym-mixnode.service && printf "%b\n\n\
     nym_status
   fi
 
+## Sign with user input 
+  if [[ ("$1" = "--sign") ||  "$1" = "-g" ]]
+  then
+    printf "%b\n\n\n" "${WHITE} Please select a ${YELLOW} mixnode"
+    printf "%b\n\n\n"
+    select d in /home/nym/.nym/mixnodes/* ; do test -n "$d" && break; printf "%b\n\n\n" "${WHITE} >>> Invalid Selection"; done
+    directory=$(printf "%b\n\n\n" "${WHITE}$d" | rev | cut -d/ -f1 | rev)
+    cd /home/nym || exit 2
+    printf "\e[1;82mYou selected\e[0m\e[3;11m ${WHITE} $directory\e[0m\n"
+    printf "%b\n\n\n"
+    printf "%b\n\n\n" "${WHITE} Your node name will be ${YELLOW} $id. ${WHITE} Use it nextime if you restart your server or the node is not running"
+    printf "%b\n\n\n"
+    printf "%b\n\n\n" "${WHITE} Enter your Telegram handle beginning with @"
+    printf "%b\n\n\n"
+    read telegram
+    printf "%b\n\n\n" "${WHITE} Your Telegram handle for the faucet will be ${YELLOW} ${telegram} "
+    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
+    # borrows a shell for nym user to initialize the node config.
+    #set -x
+    sudo -u nym -H /home/nym/nym-mixnode_linux_x86_64 sign --id $directory --text ${telegram} 2>&1 | tee -a ${directory}_claim.txt && chown nym:nym ${directory}_claim.txt
+    printf "%b\n\n\n"
+  fi
+
+
+
 ## Setup the firewall
   if [[ ("$1" = "--firewall") ||  "$1" = "-f" ]]
   then
@@ -578,6 +621,17 @@ upgrade_nym && sleep 5 && systemctl start nym-mixnode.service && printf "%b\n\n\
     printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------${NOCOLOR}"
   exit 0
   fi 
+
+  if [[ ("$1" = "--claim") ||  "$1" = "-m" ]]
+  then
+    printf "%b\n\n\n" "${WHITE} Please select a ${YELLOW} mixnode"
+    printf "%b\n\n\n"
+    select d in /home/nym/.nym/mixnodes/* ; do test -n "$d" && break; printf "%b\n\n\n" "${WHITE} >>> Invalid Selection"; done
+    directory=$(printf "%b\n\n\n" "${WHITE}$d" | rev | cut -d/ -f1 | rev)
+    cd /home/nym || exit 2
+    printf "\e[1;82mYou selected\e[0m\e[3;11m ${WHITE} $directory\e[0m\n"
+    cat /home/nym/${directory}_claim.txt || echo "claim file not found. Are you sure you ran init?"
+  fi
 #nym_usercreation
 #nym_download
 #nym_chmod
