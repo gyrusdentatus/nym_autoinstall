@@ -332,7 +332,7 @@ function nym_init() {
    printf "%b\n\n\n" "${WHITE} Your Telegram handle for the faucet will be ${YELLOW} ${telegram} "
    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
    # borrows a shell for nym user to initialize the node config.
-   sudo -u nym -H /home/nym/nym-mixnode_linux_x86_64 init --id $id --host $ip_addr && sleep 2 && sudo -u nym -H /home/nym/nym-mixnode_linux_x86_64 sign --id $id --text ${telegram} 2>&1 | tee -a ${id}_claim.txt && chown nym:nym claim.txt
+   sudo -u nym -H /home/nym/nym-mixnode_linux_x86_64 init --id $id --host $ip_addr && sleep 2 && sudo -u nym -H /home/nym/nym-mixnode_linux_x86_64 sign --id $id --text ${telegram} 2>&1 | tee -a ${id}_claim.txt && chown nym:nym ${id}_claim.txt
    printf "%b\n\n\n"
    printf "%b\n\n\n" "${WHITE} Your node has id ${YELLOW} $id ${WHITE} and has to be signed with ${LBLUE} $telegram ${WHITE} with ip ${YELLOW} $ip_addr ${WHITE}... "
    printf "%b\n\n\n" "${WHITE} Config was ${LGREEN} built successfully ${WHITE}!"
@@ -549,8 +549,6 @@ upgrade_nym && sleep 5 && systemctl start nym-mixnode.service && printf "%b\n\n\
     directory=$(printf "%b\n\n\n" "${WHITE}$d" | rev | cut -d/ -f1 | rev)
     cd /home/nym || exit 2
     printf "\e[1;82mYou selected\e[0m\e[3;11m ${WHITE} $directory\e[0m\n"
-    printf "%b\n\n\n"
-    printf "%b\n\n\n" "${WHITE} Your node name will be ${YELLOW} $id. ${WHITE} Use it nextime if you restart your server or the node is not running"
     printf "%b\n\n\n"
     printf "%b\n\n\n" "${WHITE} Enter your Telegram handle beginning with @"
     printf "%b\n\n\n"
