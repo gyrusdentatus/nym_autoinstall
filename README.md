@@ -1,4 +1,4 @@
-# The nym-mixnode installer 0.9.1
+# The nym-mixnode installer for 0.10.0 testnet
 
 ##### * An ***unofficial*** **nym-mixnode** installer.
 
@@ -6,11 +6,13 @@ This script installs all dependencies, downloads Nym-mixnode binaries, promts us
 , creates a systemd.service file based on the user input, enables ufw and nym-mixnode.service and then launches the node.
 Nym-mixnode is being launched by systemctl with a newly created user *nym* from */home/nym/* directory. 
 
+For the current testnet, it also has new features including *sign* and *claim*. 
+
 Official Nym repos can be found here: https://github.com/nymtech/
 ## Compatible systems & recommendations
 
-* It has been **tested** on **Debian 10**. 
-* There are **permission issues** on **Ubuntu 18.04** with user Nym, **not being able to create spinhx keys** for some weird N0-0buntu reason.  
+* It has been **tested** on **Debian 10** and **Ubuntu 20.04**
+* Make sure to `apt update` on a fresh machine and also that **git** is installed. 
 
 * I would highly **recommend** to **run** this script on a **fresh Debian 10** machine on **VPS**. 
 
@@ -24,7 +26,9 @@ In this case you can still use it to create a systemd.service file for a better 
 * this script needs to be run as **sudo** or **root**, but then **nym-mixnode** will be run with a user *nym*
 
 
+* MAKE SURE TO SEE USAGE HERE IN THIS README or use --help along with the script!
 
+* Beginners, please use the *installation with git*. Do not tunnel from a tunnel to the same tunnel, please...:)
 
 
 ## one-liner full installation
@@ -87,9 +91,12 @@ sudo ./nym_install.sh --help
 USAGE:
     ./nym_install.sh [FLAGS] 
 FLAGS:
+    -t  --testnet           Display testnet help and steps
     -i  --install           Full installation and setup
     -c  --config            Run only the init command without installation
     -r, --run               Start the node without installation
+    -m  --claim             Display the claim output of your node
+    -g  --sign              Sign your node
     -h, --help              Prints help information
     -V, --version           Prints version information
     -s  --status            Prints status of the running node
@@ -107,7 +114,7 @@ If you would like to build the whole Nym platform from source, see my guide [her
 
 Depending on your skills with Linux, you can skip to **Section 3**
 
-Platform build instructions are available on [official Nym docs](https://nymtech.net/docs).
+Platform build instructions are available on [official Nym docs](https://nymtech.net/docs). Go there especially if you have issues with bonding and if this script fails for whatever reason. 
 
 ## Nym-mixnode setup chat
 
