@@ -1,5 +1,7 @@
 # The nym-mixnode installer for 0.10.0 testnet
 
+## !!! This installer is currently deprecated and will be most likely updated with the upcoming mainnet launch 
+
 ##### * An ***unofficial*** **nym-mixnode** installer.
 
 This script installs all dependencies, downloads Nym-mixnode binaries, promts user for the input for the mixnode configuration
