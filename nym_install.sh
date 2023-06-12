@@ -116,7 +116,7 @@ function nym_download() {
  then
     printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
     printf "%b\n\n\n" "${YELLOW} Downloading ${WHITE} nym-mixnode binaries for the nym user ..."
-    cd /home/nym && curl -L -s "$URL" -o "nym-mixnode_linux_x86_64" --cacert /etc/ssl/certs/ca-certificates.crt && echo "Fetching the latest version"
+    cd /home/nym && curl -L -s "$URL" -o "nym-mixnode" --cacert /etc/ssl/certs/ca-certificates.crt && echo "Fetching the latest version"
     printf "%b\n\n\n"
     printf "%b\n\n\n" "${WHITE} nym-mixnode binaries ${LGREEN} successfully downloaded ${WHITE}!"
  else
@@ -129,11 +129,11 @@ function nym_download() {
 ## checks for the binaries and then makes them executable
 function nym_chmod() {
 
- if ls -la /home/nym/ | grep nym-mixnode_linux_x86_64 > /dev/null 2>&1
+ if ls -la /home/nym/ | grep nym-mixnode > /dev/null 2>&1
  then
    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
    printf "%b\n\n\n" "${WHITE} Making the nym binary ${YELLOW} executable ..."
-   chmod 755 /home/nym/nym-mixnode_linux_x86_64
+   chmod 755 /home/nym/nym-mixnode
    printf "%b\n\n\n" "${LGREEN} Successfully ${WHITE} made the file ${YELLOW} executable !${NOCOLOR}"
  else
    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
@@ -332,7 +332,7 @@ function nym_init() {
    printf "%b\n\n\n" "${WHITE} Your Telegram handle for the faucet will be ${YELLOW} ${telegram} "
    printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
    # borrows a shell for nym user to initialize the node config.
-   sudo -u nym -H /home/nym/nym-mixnode_linux_x86_64 init --id $id --host $ip_addr && sleep 2 && sudo -u nym -H /home/nym/nym-mixnode_linux_x86_64 sign --id $id --text ${telegram} 2>&1 | tee -a ${id}_claim.txt && chown nym:nym ${id}_claim.txt
+   sudo -u nym -H /home/nym/nym-mixnode init --id $id --host $ip_addr && sleep 2 && sudo -u nym -H /home/nym/nym-mixnode sign --id $id --text ${telegram} 2>&1 | tee -a ${id}_claim.txt && chown nym:nym ${id}_claim.txt
    printf "%b\n\n\n"
    printf "%b\n\n\n" "${WHITE} Your node has id ${YELLOW} $id ${WHITE} and has to be signed with ${LBLUE} $telegram ${WHITE} with ip ${YELLOW} $ip_addr ${WHITE}... "
    printf "%b\n\n\n" "${WHITE} Config was ${LGREEN} built successfully ${WHITE}!"
@@ -368,7 +368,7 @@ function nym_sign () {
     printf "%b\n\n\n" "${WHITE} Your Telegram handle for the faucet will be ${YELLOW} ${telegram} "
     printf "%b\n\n\n" "${WHITE} --------------------------------------------------------------------------------"
     # borrows a shell for nym user to initialize the node config.
-    sudo -u nym -H /home/nym/nym-mixnode_linux_x86_64 sign --id $directory --text ${telegram} 2>&1 | tee -a claim.txt && chown nym:nym claim.txt
+    sudo -u nym -H /home/nym/nym-mixnode sign --id $directory --text ${telegram} 2>&1 | tee -a claim.txt && chown nym:nym claim.txt
     printf "%b\n\n\n"
 }
    ## Check if user chose a valid node written in the systemd.service file
@@ -426,20 +426,20 @@ else
 fi
 
 # set vars for version checking and url to download the latest release of nym-mixnode
-current_version=$(./nym-mixnode_linux_x86_64 --version | grep Nym | cut -c 13- )
+current_version=$(./nym-mixnode --version | grep Nym | cut -c 13- )
 VERSION=$(curl https://github.com/nymtech/nym/releases/latest --cacert /etc/ssl/certs/ca-certificates.crt 2>/dev/null | egrep -o "[0-9|\.]{6}(-\w+)?")
-URL="https://github.com/nymtech/nym/releases/download/v$VERSION/nym-mixnode_linux_x86_64"
+URL="https://github.com/nymtech/nym/releases/download/v$VERSION/nym-mixnode"
 
 # Check if the version is up to date. If not, fetch the latest release.
-if [ ! -f nym-mixnode_linux_x86_64 ] || [ "$(./nym-mixnode_linux_x86_64 --version | grep Nym | cut -c 13- )" != "$VERSION" ]
+if [ ! -f nym-mixnode] || [ "$(./nym-mixnode_linux | grep Nym | cut -c 13- )" != "$VERSION" ]
    then
        if systemctl list-units --state=running | grep nym-mixnode
           then echo "stopping nym-mixnode.service to update the node ..." && systemctl kill --signal=SIGINT nym-mixnode
-                curl -L -s "$URL" -o "nym-mixnode_linux_x86_64" --cacert /etc/ssl/certs/ca-certificates.crt && echo "Fetching the latest version" && pwd
+                curl -L -s "$URL" -o "nym-mixnode" --cacert /etc/ssl/certs/ca-certificates.crt && echo "Fetching the latest version" && pwd
           else echo " nym-mixnode.service is inactive or not existing. Downloading new binaries ..." && pwd
-    		curl -L -s "$URL" -o "nym-mixnode_linux_x86_64" --cacert /etc/ssl/certs/ca-certificates.crt && echo "Fetching the latest version" && pwd
+    		curl -L -s "$URL" -o "nym-mixnode" --cacert /etc/ssl/certs/ca-certificates.crt && echo "Fetching the latest version" && pwd
 	   # Make it executable
-   chmod +x ./nym-mixnode_linux_x86_64 && chown nym:nym ./nym-mixnode_linux_x86_64
+   chmod +x ./nym-mixnode && chown nym:nym ./nym-mixnode
    fi
 else
    echo "You have the latest version of Nym-mixnode $VERSION"
@@ -460,9 +460,9 @@ printf "%b\n\n\n"
 read telegram
 printf "%b\n\n\n" "${WHITE} Your Telegram handle for the faucet will be ${YELLOW} ${telegram} "
 
-sudo -u nym -H ./nym-mixnode_linux_x86_64 upgrade --id $directory 
+sudo -u nym -H ./nym-mixnode upgrade --id $directory 
 sleep 2
-sudo -u nym -H ./nym-mixnode_linux_x86_64 sign --id $directory --text ${telegram}
+sudo -u nym -H ./nym-mixnode sign --id $directory --text ${telegram}
 }
 #set -x
 
